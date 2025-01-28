@@ -1,0 +1,70 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoggingService", "LoggingService\LoggingService.csproj", "{FAD95E30-4F21-4805-BABF-FC2A1E934FA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{4F6EEA76-FE74-4BB7-86B5-2A0D83271556}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{16BCA4F9-9DE6-4747-863F-30C940004D22}"
+	ProjectSection(SolutionItems) = preProject
+		Dockerfile = Dockerfile
+		.github\workflows\main.yaml = .github\workflows\main.yaml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwakeningLifeBackend", "AwakeningLifeBackend\AwakeningLifeBackend.csproj", "{6C27F790-D620-43B2-85B8-7C4DD7F13610}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwakeningLifeBackend.Core.Domain", "AwakeningLifeBackend.Core.Domain\AwakeningLifeBackend.Core.Domain.csproj", "{26431268-055E-4A8E-9704-1B9837952D9F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwakeningLifeBackend.Core.Services", "AwakeningLifeBackend.Core.Services\AwakeningLifeBackend.Core.Services.csproj", "{40D0DF90-66BA-40E5-8B65-FA760C4B2F0F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwakeningLifeBackend.Core.Services.Abstractions", "AwakeningLifeBackend.Core.Services.Abstractions\AwakeningLifeBackend.Core.Services.Abstractions.csproj", "{9E9A3938-3271-4120-854B-540CD66F5AA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwakeningLifeBackend.Infrastructure.Persistence", "AwakeningLifeBackend.Infrastructure.Persistence\AwakeningLifeBackend.Infrastructure.Persistence.csproj", "{8D525C25-599F-46F1-BB80-D8D8E7EA8B5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwakeningLifeBackend.Infrastructure.Presentation", "AwakeningLifeBackend.Infrastructure.Presentation\AwakeningLifeBackend.Infrastructure.Presentation.csproj", "{A743CFA0-C5F3-4B22-AE63-E2E5D486027F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FAD95E30-4F21-4805-BABF-FC2A1E934FA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAD95E30-4F21-4805-BABF-FC2A1E934FA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAD95E30-4F21-4805-BABF-FC2A1E934FA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAD95E30-4F21-4805-BABF-FC2A1E934FA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F6EEA76-FE74-4BB7-86B5-2A0D83271556}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F6EEA76-FE74-4BB7-86B5-2A0D83271556}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F6EEA76-FE74-4BB7-86B5-2A0D83271556}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F6EEA76-FE74-4BB7-86B5-2A0D83271556}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C27F790-D620-43B2-85B8-7C4DD7F13610}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C27F790-D620-43B2-85B8-7C4DD7F13610}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C27F790-D620-43B2-85B8-7C4DD7F13610}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C27F790-D620-43B2-85B8-7C4DD7F13610}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26431268-055E-4A8E-9704-1B9837952D9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26431268-055E-4A8E-9704-1B9837952D9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26431268-055E-4A8E-9704-1B9837952D9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26431268-055E-4A8E-9704-1B9837952D9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40D0DF90-66BA-40E5-8B65-FA760C4B2F0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40D0DF90-66BA-40E5-8B65-FA760C4B2F0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40D0DF90-66BA-40E5-8B65-FA760C4B2F0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40D0DF90-66BA-40E5-8B65-FA760C4B2F0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E9A3938-3271-4120-854B-540CD66F5AA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E9A3938-3271-4120-854B-540CD66F5AA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E9A3938-3271-4120-854B-540CD66F5AA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E9A3938-3271-4120-854B-540CD66F5AA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D525C25-599F-46F1-BB80-D8D8E7EA8B5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D525C25-599F-46F1-BB80-D8D8E7EA8B5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D525C25-599F-46F1-BB80-D8D8E7EA8B5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D525C25-599F-46F1-BB80-D8D8E7EA8B5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A743CFA0-C5F3-4B22-AE63-E2E5D486027F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A743CFA0-C5F3-4B22-AE63-E2E5D486027F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A743CFA0-C5F3-4B22-AE63-E2E5D486027F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A743CFA0-C5F3-4B22-AE63-E2E5D486027F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
