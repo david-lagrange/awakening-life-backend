@@ -13,6 +13,7 @@ using AwakeningLifeBackend.Core.Domain.ConfigurationModels;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
+using Resend;
 
 namespace AwakeningLifeBackend.Extensions;
 
@@ -51,11 +52,11 @@ public static class ServiceExtensions
     {
         var builder = services.AddIdentity<User, IdentityRole>(o =>
         {
-            o.Password.RequireDigit = true;
+            o.Password.RequireDigit = false;
             o.Password.RequireLowercase = false;
             o.Password.RequireUppercase = false;
             o.Password.RequireNonAlphanumeric = false;
-            o.Password.RequiredLength = 10;
+            o.Password.RequiredLength = 5;
             o.User.RequireUniqueEmail = true;
         })
         .AddEntityFrameworkStores<RepositoryContext>()
@@ -187,4 +188,15 @@ public static class ServiceExtensions
             s.IncludeXmlComments(xmlPath);
         });
     }
+
+    public static void ConfigureResend(this IServiceCollection services) {
+        services.AddHttpClient<ResendClient>();
+        services.Configure<ResendClientOptions>(o =>
+        {
+            o.ApiToken = Environment.GetEnvironmentVariable("RESEND_API_TOKEN")!;
+        });
+        services.AddTransient<IResend, ResendClient>();
+    }
+    public static void ConfigureEmailService(this IServiceCollection services) =>
+        services.AddScoped<IEmailService, EmailService>();
 }

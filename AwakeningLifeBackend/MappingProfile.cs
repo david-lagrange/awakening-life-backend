@@ -9,6 +9,7 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         CreateMap<UserForRegistrationDto, User>();
+        CreateMap<User, UserDto>();
 
         CreateMap<BaseEntity, BaseEntityDto>()
             .ForMember(c => c.FullAddress,
