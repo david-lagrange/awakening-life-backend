@@ -1,66 +1,66 @@
-# name: CI/CD Pipeline
+name: CI/CD Pipeline
 
-# on:
-#   push:
-#     branches:
-#       - main
-#       - development
+on:
+  push:
+    branches:
+      - main
+      - development
 
-# env:
-#   IMAGE_NAME: awakening-life-backend-backend
-#   AWS_REGION: us-east-1
-#   ECR_REGISTRY: TODO Replace with ECR registry URL
-#   ECR_REPOSITORY: awakening-life-backend-backend
-#   LAMBDA_FUNCTION_NAME: awakening-life-backend-backend-lambda-dev
+env:
+  IMAGE_NAME: awakening-life-backend
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: 143723576144.dkr.ecr.us-east-1.amazonaws.com
+  ECR_REPOSITORY: awakening-life-backend
+  LAMBDA_FUNCTION_NAME: awakening-life-backend-lambda-dev
 
-# jobs:
-#   build-and-push:
-#     runs-on: ubuntu-latest
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-#       - name: Configure AWS credentials
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ADMIN_KEY }}
-#           aws-secret-access-key: ${{ secrets.AWS_ADMIN_SECRET }}
-#           aws-region: ${{ env.AWS_REGION }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-#       - name: Login to Amazon ECR
-#         id: login-ecr
-#         uses: aws-actions/amazon-ecr-login@v1
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-#       - name: Docker build
-#         id: build-image
-#         run: docker build -t $IMAGE_NAME .
+      - name: Docker build
+        id: build-image
+        run: docker build -t $IMAGE_NAME .
 
-#       - name: Tag docker image
-#         id: tag-image
-#         run: docker tag $IMAGE_NAME:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.run_number }}
+      - name: Tag docker image
+        id: tag-image
+        run: docker tag $IMAGE_NAME:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.run_number }}
 
-#       - name: Push the Docker image to ECR
-#         id: push-image
-#         run: docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.run_number }}
+      - name: Push the Docker image to ECR
+        id: push-image
+        run: docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.run_number }}
 
-#       - name: Update Development Lambda function
-#         if: github.ref == 'refs/heads/development'
-#         id: deploy-to-development
-#         run: |
-#           aws lambda update-function-code --function-name awakening-life-backend-backend-lambda-dev --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.run_number }}
+      # - name: Update Development Lambda function
+      #   if: github.ref == 'refs/heads/development'
+      #   id: deploy-to-development
+      #   run: |
+      #     aws lambda update-function-code --function-name awakening-life-backend-lambda-dev --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.run_number }}
 
-#       - name: Update Production Lambda function
-#         if: github.ref == 'refs/heads/main'
-#         id: deploy-to-production
-#         run: |
-#           aws lambda update-function-code --function-name awakening-life-backend-backend-lambda-prod --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.run_number }}
+      # - name: Update Production Lambda function
+      #   if: github.ref == 'refs/heads/main'
+      #   id: deploy-to-production
+      #   run: |
+      #     aws lambda update-function-code --function-name awakening-life-backend-lambda-prod --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.run_number }}
 
-#       - name: Notify Slack
-#         if: always()
-#         uses: act10ns/slack@v2
-#         with:
-#           status: ${{ job.status }}
-#           steps: ${{ toJson(steps) }}
-#           channel: '#channel'
-#           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Notify Slack
+        if: always()
+        uses: act10ns/slack@v2
+        with:
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+          channel: '#channel'
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
