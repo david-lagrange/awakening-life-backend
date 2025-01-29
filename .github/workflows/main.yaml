@@ -44,11 +44,11 @@ jobs:
         id: push-image
         run: docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.run_number }}
 
-      # - name: Update Development Lambda function
-      #   if: github.ref == 'refs/heads/development'
-      #   id: deploy-to-development
-      #   run: |
-      #     aws lambda update-function-code --function-name awakening-life-backend-lambda-dev --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.run_number }}
+      - name: Update Development Lambda function
+        if: github.ref == 'refs/heads/development'
+        id: deploy-to-development
+        run: |
+          aws lambda update-function-code --function-name awakening-life-backend-lambda-dev --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.run_number }}
 
       # - name: Update Production Lambda function
       #   if: github.ref == 'refs/heads/main'

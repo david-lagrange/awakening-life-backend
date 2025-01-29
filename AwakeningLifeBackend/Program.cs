@@ -9,7 +9,7 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Serilog.Debugging.SelfLog.Enable(msg => File.AppendAllText("serilog-selflog.txt", msg));
+//Serilog.Debugging.SelfLog.Enable(msg => File.AppendAllText("serilog-selflog.txt", msg));
 
 builder.Services.ConfigureCors();
 builder.Services.ConfigureIISIntegration();
