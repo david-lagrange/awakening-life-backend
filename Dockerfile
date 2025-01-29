@@ -27,7 +27,6 @@ RUN dotnet build -c Release -o /app/build
 
 FROM build AS publish
 RUN dotnet publish -c Release -o /app/publish
-# Ensure XML documentation files are included in the publish output
 RUN cp /src/AwakeningLifeBackend.Infrastructure.Presentation/AwakeningLifeBackend.Infrastructure.Presentation.xml /app/publish/
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
