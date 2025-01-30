@@ -64,7 +64,7 @@ public class UsersController : ControllerBase
     {
         await _service.UserService.SendResetPasswordEmailAsync(userForResetPasswordDto);
 
-        return StatusCode(200);
+        return Ok();
     }
 
     [HttpPut("reset-password")]
@@ -73,7 +73,7 @@ public class UsersController : ControllerBase
     {
         await _service.UserService.ResetPasswordAsync(userForResetPasswordDto);
 
-        return StatusCode(201);
+        return Ok();
     }
 
     [HttpPost("confirm-email-request")]
@@ -89,7 +89,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> ConfirmEmail([FromBody] UserForEmailConfirmationDto confirmationDto)
     {
         await _service.UserService.ConfirmEmailAsync(confirmationDto);
-        return StatusCode(201);
+        return Ok();
     }
 
 }
