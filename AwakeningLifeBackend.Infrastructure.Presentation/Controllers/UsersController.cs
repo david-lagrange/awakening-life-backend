@@ -58,7 +58,7 @@ public class UsersController : ControllerBase
 
     }
 
-    [HttpPost("resetpassword")]
+    [HttpPost("reset-password")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> ResetPasswordRequest([FromBody] UserForResetPasswordRequestDto userForResetPasswordDto)
     {
@@ -67,7 +67,7 @@ public class UsersController : ControllerBase
         return StatusCode(200);
     }
 
-    [HttpPut("resetpassword")]
+    [HttpPut("reset-password")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> ResetPasswordUpdate([FromBody] UserForResetPasswordUpdateDto userForResetPasswordDto)
     {
@@ -84,7 +84,7 @@ public class UsersController : ControllerBase
         return Ok();
     }
 
-    [HttpPost("confirm-email")]
+    [HttpPut("confirm-email")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> ConfirmEmail([FromBody] UserForEmailConfirmationDto confirmationDto)
     {
