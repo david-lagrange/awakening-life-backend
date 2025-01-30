@@ -134,6 +134,7 @@ internal sealed class AuthenticationService : IAuthenticationService
         var claims = new List<Claim>
         {
             new Claim("userId", _user!.Id!),
+            new Claim(ClaimTypes.Name, _user!.UserName!),
             new Claim("username", _user!.UserName!),
             new Claim("email", _user!.Email!),
             new Claim("emailConfirmed", _user!.EmailConfirmed.ToString()!),
