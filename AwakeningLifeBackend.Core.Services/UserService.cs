@@ -213,7 +213,7 @@ internal sealed class UserService : IUserService
         }
 
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-        var confirmationLink = $"{baseUrl}/auth/confirm-email?token={HttpUtility.UrlEncode(token)}&email={HttpUtility.UrlEncode(userForEmailConfirmationRequestDto.Email)}";
+        var confirmationLink = $"{baseUrl}/redirects/confirm-email?token={HttpUtility.UrlEncode(token)}&email={HttpUtility.UrlEncode(userForEmailConfirmationRequestDto.Email)}";
 
         await _emailService.SendEmailConfirmationAsync(user.Email, confirmationLink);
     }
