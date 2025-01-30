@@ -22,7 +22,6 @@ internal sealed class AuthenticationService : IAuthenticationService
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IOptions<JwtConfiguration> _configuration;
-
     private readonly JwtConfiguration _jwtConfiguration;
     private User? _user;
 
