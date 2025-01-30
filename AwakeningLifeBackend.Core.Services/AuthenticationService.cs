@@ -133,16 +133,16 @@ internal sealed class AuthenticationService : IAuthenticationService
     {
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, _user!.UserName!),
-            new Claim("EmailConfirmed", _user.EmailConfirmed.ToString())
+            new Claim("userId", _user!.Id!),
+            new Claim("username", _user!.UserName!),
+            new Claim("email", _user!.Email!),
+            new Claim("emailConfirmed", _user!.EmailConfirmed.ToString()!),
         };
 
         var roles = await _userManager.GetRolesAsync(_user);
 
         foreach (var role in roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role));
-        }
+            claims.Add(new Claim("roles", role));
 
         return claims;
     }
