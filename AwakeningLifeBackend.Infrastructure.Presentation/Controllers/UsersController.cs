@@ -76,4 +76,20 @@ public class UsersController : ControllerBase
         return StatusCode(201);
     }
 
+    [HttpPost("confirm-email-request")]
+    [ServiceFilter(typeof(ValidationFilterAttribute))]
+    public async Task<IActionResult> ConfirmEmailRequest([FromBody] UserForEmailConfirmationRequestDto confirmationRequestDto)
+    {
+        await _service.UserService.SendEmailConfirmationAsync(confirmationRequestDto);
+        return Ok();
+    }
+
+    [HttpPost("confirm-email")]
+    [ServiceFilter(typeof(ValidationFilterAttribute))]
+    public async Task<IActionResult> ConfirmEmail([FromBody] UserForEmailConfirmationDto confirmationDto)
+    {
+        await _service.UserService.ConfirmEmailAsync(confirmationDto);
+        return StatusCode(201);
+    }
+
 }

@@ -202,8 +202,35 @@ internal sealed class UserService : IUserService
         }
     }
 
+    public async Task SendEmailConfirmationAsync(UserForEmailConfirmationRequestDto userForEmailConfirmationRequestDto)
+    {
+        var baseUrl = Environment.GetEnvironmentVariable("API_CLIENT_REDIRECT_BASE_URL");
+        var user = await GetUserByEmailAsync(userForEmailConfirmationRequestDto.Email);
 
+        if (user.Email == null)
+        {
+            throw new UserHasNoEmailSetException(new Guid(user.Id));
+        }
 
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        var confirmationLink = $"{baseUrl}/auth/confirm-email?token={HttpUtility.UrlEncode(token)}&email={HttpUtility.UrlEncode(userForEmailConfirmationRequestDto.Email)}";
+
+        await _emailService.SendEmailConfirmationAsync(user.Email, confirmationLink);
+    }
+
+    public async Task ConfirmEmailAsync(UserForEmailConfirmationDto userForEmailConfirmationDto)
+    {
+        var user = await GetUserByEmailAsync(userForEmailConfirmationDto.Email);
+        var decodedToken = HttpUtility.UrlDecode(userForEmailConfirmationDto.Token);
+
+        var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
+
+        if (!result.Succeeded)
+        {
+            _logger.LogError($"Email confirmation failed for user {user.Email}. Errors: {string.Join(", ", result.Errors.Select(error => error.Description))}");
+            throw new Exception($"Email confirmation failed. Errors: {string.Join(", ", result.Errors.Select(error => error.Description))}");
+        }
+    }
 }
 
 public static class RepositoryUserExtension

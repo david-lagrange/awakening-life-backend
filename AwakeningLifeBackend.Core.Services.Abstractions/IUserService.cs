@@ -12,4 +12,6 @@ public interface IUserService
     Task<IdentityResult> UpdateUserAsync(Guid userId, UserForUpdateDto userForUpdateDto);
     Task SendResetPasswordEmailAsync(UserForResetPasswordRequestDto userForResetPasswordRequestDto);
     Task ResetPasswordAsync(UserForResetPasswordUpdateDto userForResetPasswordUpdateDto);
+    Task SendEmailConfirmationAsync(UserForEmailConfirmationRequestDto userForEmailConfirmationRequestDto);
+    Task ConfirmEmailAsync(UserForEmailConfirmationDto userForEmailConfirmationDto);
 }

@@ -23,6 +23,23 @@ public record UserForRegistrationDto
     public string? PhoneNumber { get; init; }
     public ICollection<string>? Roles { get; init; }
 }
+
+public class UserForEmailConfirmationRequestDto
+{
+    [Required(ErrorMessage = "Email is required")]
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
+}
+
+public class UserForEmailConfirmationDto
+{
+    [Required(ErrorMessage = "Email is required")]
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Token is required")]
+    public string Token { get; set; } = string.Empty;
+}
 public record UserDto
 {
     public string? Id { get; init; }
