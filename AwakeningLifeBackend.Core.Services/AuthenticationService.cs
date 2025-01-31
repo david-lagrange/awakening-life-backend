@@ -64,7 +64,7 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         if (!result)
             _logger.LogWarning($"{nameof(ValidateUser)}: " +
-                $"Authentication failed. Wrong user name or password.");
+                $"Authentication failed. Wrong email or password.");
 
         return result;
     }
