@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Shared.DataTransferObjects;
 
-namespace AwakeningLifeBackend.Core.Services.Abstractions;
+namespace AwakeningLifeBackend.Core.Services.Abstractions.Services;
 
 public interface IAuthenticationService
 {

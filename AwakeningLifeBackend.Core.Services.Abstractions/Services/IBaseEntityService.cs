@@ -1,7 +1,7 @@
 ﻿using Shared.DataTransferObjects;
 using Shared.RequestFeatures;
 
-namespace AwakeningLifeBackend.Core.Services.Abstractions;
+namespace AwakeningLifeBackend.Core.Services.Abstractions.Services;
 
 public interface IBaseEntityService
 {

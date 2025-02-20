@@ -2,12 +2,12 @@
 using AwakeningLifeBackend.Core.Domain.Entities;
 using AwakeningLifeBackend.Core.Domain.Exceptions;
 using AwakeningLifeBackend.Core.Domain.Repositories;
-using AwakeningLifeBackend.Core.Services.Abstractions;
+using AwakeningLifeBackend.Core.Services.Abstractions.Services;
 using LoggingService;
 using Shared.DataTransferObjects;
 using Shared.RequestFeatures;
 
-namespace AwakeningLifeBackend.Core.Services;
+namespace AwakeningLifeBackend.Core.Services.Services;
 
 internal sealed class BaseEntityService : IBaseEntityService
 {
@@ -83,7 +83,7 @@ internal sealed class BaseEntityService : IBaseEntityService
         var baseEntityCollectionToReturn = _mapper.Map<IEnumerable<BaseEntityDto>>(baseEntityEntities);
         var ids = string.Join(",", baseEntityCollectionToReturn.Select(c => c.Id));
 
-        return (baseEntities: baseEntityCollectionToReturn, ids: ids);
+        return (baseEntities: baseEntityCollectionToReturn, ids);
     }
 
 

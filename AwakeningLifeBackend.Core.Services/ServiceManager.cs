@@ -3,6 +3,8 @@ using AwakeningLifeBackend.Core.Domain.ConfigurationModels;
 using AwakeningLifeBackend.Core.Domain.Entities;
 using AwakeningLifeBackend.Core.Domain.Repositories;
 using AwakeningLifeBackend.Core.Services.Abstractions;
+using AwakeningLifeBackend.Core.Services.Abstractions.Services;
+using AwakeningLifeBackend.Core.Services.Services;
 using AwakeningLifeBackend.Infrastructure.ExternalServices;
 using LoggingService;
 using Microsoft.AspNetCore.Identity;

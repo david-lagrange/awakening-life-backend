@@ -2,12 +2,12 @@
 using AwakeningLifeBackend.Core.Domain.Entities;
 using AwakeningLifeBackend.Core.Domain.Exceptions;
 using AwakeningLifeBackend.Core.Domain.Repositories;
-using AwakeningLifeBackend.Core.Services.Abstractions;
+using AwakeningLifeBackend.Core.Services.Abstractions.Services;
 using LoggingService;
 using Shared.DataTransferObjects;
 using Shared.RequestFeatures;
 
-namespace AwakeningLifeBackend.Core.Services;
+namespace AwakeningLifeBackend.Core.Services.Services;
 
 internal sealed class DependantEntityService : IDependantEntityService
 {

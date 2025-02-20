@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using AwakeningLifeBackend.Core.Domain.Entities;
 using AwakeningLifeBackend.Core.Domain.Exceptions;
-using AwakeningLifeBackend.Core.Services.Abstractions;
+using AwakeningLifeBackend.Core.Services.Abstractions.Services;
 using AwakeningLifeBackend.Infrastructure.ExternalServices;
 using LoggingService;
 using Microsoft.AspNetCore.Identity;
@@ -9,7 +9,7 @@ using Shared.DataTransferObjects;
 using Shared.RequestFeatures;
 using System.Web;
 
-namespace AwakeningLifeBackend.Core.Services;
+namespace AwakeningLifeBackend.Core.Services.Services;
 
 internal sealed class UserService : IUserService
 {

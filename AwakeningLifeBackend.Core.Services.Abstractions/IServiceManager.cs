@@ -1,4 +1,6 @@
-﻿namespace AwakeningLifeBackend.Core.Services.Abstractions;
+﻿using AwakeningLifeBackend.Core.Services.Abstractions.Services;
+
+namespace AwakeningLifeBackend.Core.Services.Abstractions;
 
 public interface IServiceManager
 {

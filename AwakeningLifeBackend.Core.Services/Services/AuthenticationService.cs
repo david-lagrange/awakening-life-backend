@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using AwakeningLifeBackend.Core.Domain.Entities;
 using LoggingService;
-using AwakeningLifeBackend.Core.Services.Abstractions;
 using Microsoft.AspNetCore.Identity;
 using Shared.DataTransferObjects;
 using AwakeningLifeBackend.Core.Domain.Exceptions;
@@ -12,8 +11,9 @@ using System.Text;
 using System.Security.Cryptography;
 using AwakeningLifeBackend.Core.Domain.ConfigurationModels;
 using Microsoft.Extensions.Options;
+using AwakeningLifeBackend.Core.Services.Abstractions.Services;
 
-namespace AwakeningLifeBackend.Core.Services;
+namespace AwakeningLifeBackend.Core.Services.Services;
 
 internal sealed class AuthenticationService : IAuthenticationService
 {
@@ -60,7 +60,7 @@ internal sealed class AuthenticationService : IAuthenticationService
     {
         _user = await _userManager.FindByEmailAsync(userForAuth.Email!);
 
-        var result = (_user != null && await _userManager.CheckPasswordAsync(_user, userForAuth.Password!));
+        var result = _user != null && await _userManager.CheckPasswordAsync(_user, userForAuth.Password!);
 
         if (!result)
             _logger.LogWarning($"{nameof(ValidateUser)}: " +
