@@ -234,7 +234,7 @@ internal sealed class UserService : IUserService
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-        var resetLink = $"{baseUrl}/auth/reset?token={HttpUtility.UrlEncode(token)}&email={HttpUtility.UrlEncode(userForResetPasswordRequestDto.Email)}";
+        var resetLink = $"{baseUrl}/auth/reset-password?token={HttpUtility.UrlEncode(token)}&email={HttpUtility.UrlEncode(userForResetPasswordRequestDto.Email)}";
 
         await _emailService.SendEmailAsync(user.Email, resetLink);
     }
