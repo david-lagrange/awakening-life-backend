@@ -25,7 +25,7 @@ public class UsersController : ControllerBase
         return Ok(user);
     }
 
-    [HttpGet]
+    [HttpGet("tokens")]
     [Authorize]
     public async Task<IActionResult> GetUserTokens()
     {
