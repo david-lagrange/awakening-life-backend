@@ -8,6 +8,7 @@ COPY AwakeningLifeBackend.Core.Domain/*.csproj ./AwakeningLifeBackend.Core.Domai
 COPY AwakeningLifeBackend.Core.Services/*.csproj ./AwakeningLifeBackend.Core.Services/
 COPY AwakeningLifeBackend.Core.Services.Abstractions/*.csproj ./AwakeningLifeBackend.Core.Services.Abstractions/
 COPY AwakeningLifeBackend.Infrastructure.Persistence/*.csproj ./AwakeningLifeBackend.Infrastructure.Persistence/
+COPY AwakeningLifeBackend.Infrastructure.ExternalServices/*.csproj ./AwakeningLifeBackend.Infrastructure.ExternalServices/
 COPY LoggingService/*.csproj ./LoggingService/
 COPY Shared/*.csproj ./Shared/
 
@@ -19,6 +20,7 @@ COPY AwakeningLifeBackend.Core.Domain/ ./AwakeningLifeBackend.Core.Domain/
 COPY AwakeningLifeBackend.Core.Services/ ./AwakeningLifeBackend.Core.Services/
 COPY AwakeningLifeBackend.Core.Services.Abstractions/ ./AwakeningLifeBackend.Core.Services.Abstractions/
 COPY AwakeningLifeBackend.Infrastructure.Persistence/ ./AwakeningLifeBackend.Infrastructure.Persistence/
+COPY AwakeningLifeBackend.Infrastructure.ExternalServices/ ./AwakeningLifeBackend.Infrastructure.ExternalServices/
 COPY LoggingService/ ./LoggingService/
 COPY Shared/ ./Shared/
 

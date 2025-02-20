@@ -1,7 +1,6 @@
-﻿using AwakeningLifeBackend.Core.Services.Abstractions;
-using Resend;
+﻿using Resend;
 
-namespace AwakeningLifeBackend.Core.Services;
+namespace AwakeningLifeBackend.Infrastructure.ExternalServices;
 
 public class EmailService : IEmailService
 {

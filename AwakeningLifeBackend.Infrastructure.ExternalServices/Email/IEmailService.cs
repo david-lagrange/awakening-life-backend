@@ -1,4 +1,4 @@
-﻿namespace AwakeningLifeBackend.Core.Services.Abstractions;
+﻿namespace AwakeningLifeBackend.Infrastructure.ExternalServices;
 
 public interface IEmailService
 {

@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwakeningLifeBackend.Infras
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwakeningLifeBackend.Infrastructure.Presentation", "AwakeningLifeBackend.Infrastructure.Presentation\AwakeningLifeBackend.Infrastructure.Presentation.csproj", "{A743CFA0-C5F3-4B22-AE63-E2E5D486027F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwakeningLifeBackend.Infrastructure.ExternalServices", "AwakeningLifeBackend.Infrastructure.ExternalServices\AwakeningLifeBackend.Infrastructure.ExternalServices.csproj", "{ECD62F0C-417D-47BC-BEC6-7355AB6E3A9E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,8 +65,15 @@ Global
 		{A743CFA0-C5F3-4B22-AE63-E2E5D486027F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A743CFA0-C5F3-4B22-AE63-E2E5D486027F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A743CFA0-C5F3-4B22-AE63-E2E5D486027F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECD62F0C-417D-47BC-BEC6-7355AB6E3A9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECD62F0C-417D-47BC-BEC6-7355AB6E3A9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECD62F0C-417D-47BC-BEC6-7355AB6E3A9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECD62F0C-417D-47BC-BEC6-7355AB6E3A9E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2EEC0226-47E1-40EB-B43E-6F333DD2059F}
 	EndGlobalSection
 EndGlobal
