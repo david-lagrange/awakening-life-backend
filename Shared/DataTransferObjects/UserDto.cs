@@ -51,6 +51,20 @@ public record UserDto
     public ICollection<string>? Roles { get; set; }
 }
 
+public record UserTokensDto
+{
+    public string? AccessToken { get; init; }
+    public string? RefreshToken { get; init; }
+}
+
+public record UserForUpdatePasswordDto
+{
+    [Required(ErrorMessage = "CurrentPassword is required")]
+    public string? CurrentPassword { get; init; }
+    [Required(ErrorMessage = "NewPassword is required")]
+    public string? NewPassword { get; init; }
+}
+
 public record UserForUpdateDto
 {
     [Required(ErrorMessage = "FirstName is required")]

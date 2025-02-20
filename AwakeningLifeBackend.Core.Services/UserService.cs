@@ -26,6 +26,8 @@ internal sealed class UserService : IUserService
 
     public async Task<(IEnumerable<UserDto> users, MetaData metaData)> GetUsersAsync(UserParameters userParameters)
     {
+        _logger.LogInformation($"Retrieving users with parameters - Page: {userParameters.PageNumber}, PageSize: {userParameters.PageSize}");
+
         var query = _userManager.Users.Where(u => !u.IsDeleted);
         if (!string.IsNullOrEmpty(userParameters.SearchTerm))
         {
@@ -52,36 +54,55 @@ internal sealed class UserService : IUserService
             usersDtos.Add(userDto);
         }
 
+        _logger.LogInformation($"Retrieved {usersDtos.Count} users from database");
         return (users: usersDtos, metaData: usersWithMetaData.MetaData);
     }
 
     public async Task<UserDto> GetUserByIdAsync(Guid userId)
     {
+        _logger.LogInformation($"Attempting to retrieve user with ID: {userId}");
         var user = await _userManager.FindByIdAsync(userId.ToString());
 
         if (user == null)
         {
+            _logger.LogWarning($"User with ID: {userId} was not found");
             throw new UserNotFoundException(userId);
         }
 
+        _logger.LogInformation($"Successfully retrieved user {user.UserName} (ID: {userId})");
         var roles = await _userManager.GetRolesAsync(user);
+
+        //StripeCustomerDto? stripeCustomerDto = null;
+
+        //if (!string.IsNullOrEmpty(user.StripeCustomerId))
+        //{
+        //    var stripeCustomer = await _stripeService.GetCustomerByIdAsync(user.StripeCustomerId);
+        //    stripeCustomerDto = _mapper.Map<StripeCustomerDto>(stripeCustomer);
+        //}
+
         var userDto = _mapper.Map<UserDto>(user);
         userDto.Roles = roles.ToList();
+        //userDto.StripeCustomer = stripeCustomerDto;
 
         return userDto;
     }
 
     public async Task<IdentityResult> DeleteUserAsync(Guid userId)
     {
+        _logger.LogInformation($"Attempting to delete user with ID: {userId}");
         var user = await _userManager.FindByIdAsync(userId.ToString());
 
         if (user == null)
         {
+            _logger.LogWarning($"Delete failed - User with ID: {userId} was not found");
             throw new UserNotFoundException(userId);
         }
 
         if (user.UserName == "swarming-admin")
+        {
+            _logger.LogWarning($"Attempted to delete protected user: {user.UserName}");
             throw new ProtectedUserException(userId);
+        }
 
         user.Email = $"deleted_{user.Email}_{Guid.NewGuid()}";
         user.UserName = $"deleted_{user.UserName}_{Guid.NewGuid()}";
@@ -94,20 +115,28 @@ internal sealed class UserService : IUserService
         user.RefreshTokenExpiryTime = DateTime.UtcNow;
         user.PasswordHash = null;
 
-        return await _userManager.UpdateAsync(user);
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded)
+            _logger.LogInformation($"Successfully deleted user {user.UserName} (ID: {userId})");
+        else
+            _logger.LogError($"Failed to delete user {user.UserName} (ID: {userId}). Errors: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+
+        return result;
     }
 
     public async Task<IdentityResult> UpdateUserAsync(Guid userId, UserForUpdateDto userForUpdateDto)
     {
+        _logger.LogInformation($"Attempting to update user with ID: {userId}");
         var user = await _userManager.FindByIdAsync(userId.ToString());
 
         if (user == null)
         {
+            _logger.LogWarning($"Update failed - User with ID: {userId} was not found");
             throw new UserNotFoundException(userId);
         }
 
-        if (user.UserName == "swarming-admin")
-            throw new ProtectedUserException(userId);
+        //if (user.UserName == "")
+        //    throw new ProtectedUserException(userId);
 
         user.FirstName = userForUpdateDto.FirstName;
         user.LastName = userForUpdateDto.LastName;
@@ -117,36 +146,80 @@ internal sealed class UserService : IUserService
 
         var result = await _userManager.UpdateAsync(user);
 
-        if (result.Succeeded && userForUpdateDto.Roles != null)
+        if (result.Succeeded)
         {
-            var currentRoles = await _userManager.GetRolesAsync(user);
-            var rolesToAdd = userForUpdateDto.Roles.Except(currentRoles).ToList();
-            var rolesToRemove = currentRoles.Except(userForUpdateDto.Roles).ToList();
+            _logger.LogInformation($"Successfully updated user {user.UserName} (ID: {userId})");
 
-            if (rolesToAdd.Any())
+            if (userForUpdateDto.Roles != null)
             {
-                await _userManager.AddToRolesAsync(user, rolesToAdd);
-            }
+                _logger.LogInformation($"Updating roles for user {user.UserName} (ID: {userId})");
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                var rolesToAdd = userForUpdateDto.Roles.Except(currentRoles).ToList();
+                var rolesToRemove = currentRoles.Except(userForUpdateDto.Roles).ToList();
 
-            if (rolesToRemove.Any())
-            {
-                await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+                if (rolesToAdd.Any())
+                {
+                    await _userManager.AddToRolesAsync(user, rolesToAdd);
+                }
+
+                if (rolesToRemove.Any())
+                {
+                    await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+                }
             }
+        }
+        else
+        {
+            _logger.LogError($"Failed to update user {user.UserName} (ID: {userId}). Errors: {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
 
         if (userForUpdateDto.ChangePassword == true && !string.IsNullOrEmpty(userForUpdateDto.Password))
         {
+            _logger.LogInformation($"Initiating password change for user {user.UserName} (ID: {userId})");
             var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
             var resetPasswordResult = await _userManager.ResetPasswordAsync(user, resetToken, userForUpdateDto.Password);
 
-            // if (!resetPasswordResult.Succeeded)
-            // {
-            //     return resetPasswordResult;
-            // }
+            if (!resetPasswordResult.Succeeded)
+                _logger.LogError($"Password reset failed for user {user.UserName} (ID: {userId}). Errors: {string.Join(", ", resetPasswordResult.Errors.Select(e => e.Description))}");
+            else
+                _logger.LogInformation($"Successfully reset password for user {user.UserName} (ID: {userId})");
         }
 
         return result;
     }
+
+//    public async Task UpdateUserSubscriptionAsync(Guid userId, UserSubscriptionUpdateDto userSubscriptionUpdateDto)
+//    {
+//        _logger.LogInformation($"Attempting to update subscription for user with ID: {userId}");
+//        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+//        if (user == null)
+//        {
+//            throw new UserNotFoundException(userId);
+//        }
+
+//        user.StripeProductId = userSubscriptionUpdateDto.StripeProductId;
+
+//        if (string.IsNullOrEmpty(user.StripeCustomerId))
+//        {
+//            _logger.LogInformation($"Creating new Stripe customer for user {user.UserName} (ID: {userId})");
+//#pragma warning disable CS8604 // Possible null reference argument.
+//            var stripeCustomer = await _stripeService.CreateCustomerAsync(user.Email, $"{user.FirstName} {user.LastName}", user.PhoneNumber);
+//#pragma warning restore CS8604 // Possible null reference argument.
+
+//            user.StripeCustomerId = stripeCustomer.Id;
+//        }
+
+//        var result = await _userManager.UpdateAsync(user);
+
+//        if (!result.Succeeded)
+//        {
+//            _logger.LogError($"Failed to update subscription for user {user.UserName} (ID: {userId}). Errors: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+//            throw new Exception("Failed to update user subscription.");
+//        }
+
+//        _logger.LogInformation($"Successfully updated subscription for user {user.UserName} (ID: {userId})");
+//    }
 
     private async Task<User> GetUserByEmailAsync(string email)
     {
@@ -165,6 +238,12 @@ internal sealed class UserService : IUserService
 
         var baseUrl = Environment.GetEnvironmentVariable("API_CLIENT_REDIRECT_BASE_URL");
 
+        if (baseUrl == null)
+        {
+            _logger.LogWarning("API_CLIENT_REDIRECT_BASE_URL environment variable is not set");
+            throw new EnvironmentVariableNotSetException("API_CLIENT_REDIRECT_BASE_URL");
+        }
+
 #pragma warning disable CS8604 // Possible null reference argument.
         var user = await GetUserByEmailAsync(userForResetPasswordRequestDto.Email);
 #pragma warning restore CS8604 // Possible null reference argument.
@@ -176,7 +255,7 @@ internal sealed class UserService : IUserService
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-        var resetLink = $"{baseUrl}/account/reset?token={HttpUtility.UrlEncode(token)}&email={HttpUtility.UrlEncode(userForResetPasswordRequestDto.Email)}";
+        var resetLink = $"{baseUrl}/auth/reset?token={HttpUtility.UrlEncode(token)}&email={HttpUtility.UrlEncode(userForResetPasswordRequestDto.Email)}";
 
         await _emailService.SendEmailAsync(user.Email, resetLink);
     }
@@ -187,10 +266,10 @@ internal sealed class UserService : IUserService
 
 #pragma warning disable CS8604 // Possible null reference argument.
         var user = await GetUserByEmailAsync(userForResetPasswordUpdateDto.Email);
-        
+
         // Decode the token if it hasn't been decoded already
         var decodedToken = HttpUtility.UrlDecode(userForResetPasswordUpdateDto.Token);
-        
+
         _logger.LogInformation($"Attempting to reset password for user {user.Email}");
         var result = await _userManager.ResetPasswordAsync(user, decodedToken, userForResetPasswordUpdateDto.NewPassword);
 #pragma warning disable CS8604 // Possible null reference argument.
@@ -205,6 +284,13 @@ internal sealed class UserService : IUserService
     public async Task SendEmailConfirmationAsync(UserForEmailConfirmationRequestDto userForEmailConfirmationRequestDto)
     {
         var baseUrl = Environment.GetEnvironmentVariable("API_CLIENT_REDIRECT_BASE_URL");
+
+        if (baseUrl == null)
+        {
+            _logger.LogWarning("API_CLIENT_REDIRECT_BASE_URL environment variable is not set");
+            throw new EnvironmentVariableNotSetException("API_CLIENT_REDIRECT_BASE_URL");
+        }
+
         var user = await GetUserByEmailAsync(userForEmailConfirmationRequestDto.Email);
 
         if (user.Email == null)
@@ -231,6 +317,37 @@ internal sealed class UserService : IUserService
             throw new Exception($"Email confirmation failed. Errors: {string.Join(", ", result.Errors.Select(error => error.Description))}");
         }
     }
+
+    public async Task UpdatePasswordAsync(Guid userId, UserForUpdatePasswordDto userForUpdatePasswordDto)
+    {
+        _logger.LogInformation($"Attempting to update password for user with ID: {userId}");
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+        if (user == null)
+        {
+            _logger.LogWarning($"Update password failed - User with ID: {userId} was not found");
+            throw new UserNotFoundException(userId);
+        }
+
+        // Verify the current password
+        var isCurrentPasswordValid = await _userManager.CheckPasswordAsync(user, userForUpdatePasswordDto.CurrentPassword);
+        if (!isCurrentPasswordValid)
+        {
+            _logger.LogWarning($"Update password failed - Current password is invalid for user ID: {userId}");
+            throw new UpdatePasswordBadRequest("Current password is incorrect");
+        }
+
+        // Change the password
+        var result = await _userManager.ChangePasswordAsync(user, userForUpdatePasswordDto.CurrentPassword, userForUpdatePasswordDto.NewPassword);
+
+        if (!result.Succeeded)
+        {
+            _logger.LogError($"Failed to update password for user {user.UserName} (ID: {userId}). Errors: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            throw new UpdatePasswordBadRequest($"Password update failed. Errors: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+
+        _logger.LogInformation($"Successfully updated password for user {user.UserName} (ID: {userId})");
+    }
 }
 
 public static class RepositoryUserExtension
@@ -242,12 +359,12 @@ public static class RepositoryUserExtension
 
         var lowerCaseTerm = searchTerm.Trim().ToLower();
 
-        return user.Where(i => (i.Id != null && i.Id.Contains(lowerCaseTerm, StringComparison.OrdinalIgnoreCase)) ||
-                               (i.FirstName != null && i.FirstName.Contains(lowerCaseTerm, StringComparison.OrdinalIgnoreCase)) ||
-                               (i.LastName != null && i.LastName.Contains(lowerCaseTerm, StringComparison.OrdinalIgnoreCase)) ||
-                               (i.UserName != null && i.UserName.Contains(lowerCaseTerm, StringComparison.OrdinalIgnoreCase)) ||
-                               (i.NormalizedUserName != null && i.NormalizedUserName.Contains(lowerCaseTerm, StringComparison.OrdinalIgnoreCase)) ||
-                               (i.Email != null && i.Email.Contains(lowerCaseTerm, StringComparison.OrdinalIgnoreCase)) ||
-                               (i.NormalizedEmail != null && i.NormalizedEmail.Contains(lowerCaseTerm, StringComparison.OrdinalIgnoreCase)));
+        return user.Where(i => i.Id != null && i.Id.Contains(lowerCaseTerm, StringComparison.OrdinalIgnoreCase) ||
+                               i.FirstName != null && i.FirstName.Contains(lowerCaseTerm, StringComparison.OrdinalIgnoreCase) ||
+                               i.LastName != null && i.LastName.Contains(lowerCaseTerm, StringComparison.OrdinalIgnoreCase) ||
+                               i.UserName != null && i.UserName.Contains(lowerCaseTerm, StringComparison.OrdinalIgnoreCase) ||
+                               i.NormalizedUserName != null && i.NormalizedUserName.Contains(lowerCaseTerm, StringComparison.OrdinalIgnoreCase) ||
+                               i.Email != null && i.Email.Contains(lowerCaseTerm, StringComparison.OrdinalIgnoreCase) ||
+                               i.NormalizedEmail != null && i.NormalizedEmail.Contains(lowerCaseTerm, StringComparison.OrdinalIgnoreCase));
     }
 }

@@ -5,7 +5,6 @@ using AwakeningLifeBackend.Core.Domain.Repositories;
 using AwakeningLifeBackend.Core.Services.Abstractions;
 using LoggingService;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace AwakeningLifeBackend.Core.Services;

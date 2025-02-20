@@ -10,8 +10,10 @@ public interface IUserService
     Task<UserDto> GetUserByIdAsync(Guid userId);
     Task<IdentityResult> DeleteUserAsync(Guid userId);
     Task<IdentityResult> UpdateUserAsync(Guid userId, UserForUpdateDto userForUpdateDto);
+    //Task UpdateUserSubscriptionAsync(Guid userId, UserSubscriptionUpdateDto userSubscriptionUpdateDto);
     Task SendResetPasswordEmailAsync(UserForResetPasswordRequestDto userForResetPasswordRequestDto);
     Task ResetPasswordAsync(UserForResetPasswordUpdateDto userForResetPasswordUpdateDto);
     Task SendEmailConfirmationAsync(UserForEmailConfirmationRequestDto userForEmailConfirmationRequestDto);
     Task ConfirmEmailAsync(UserForEmailConfirmationDto userForEmailConfirmationDto);
+    Task UpdatePasswordAsync(Guid userId, UserForUpdatePasswordDto userForUpdatePasswordDto);
 }
