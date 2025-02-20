@@ -26,6 +26,18 @@ public class RoleConfiguration : IEntityTypeConfiguration<IdentityRole>
                 Id = "77e345c0-86e5-4aa6-9744-54b83db0b53d",
                 Name = "View Users",
                 NormalizedName = "VIEW USERS"
+            },
+            new IdentityRole
+            {
+                Id = "6345c99d-8cce-45f1-a876-8a99fe91cd94",
+                Name = "View Roles",
+                NormalizedName = "VIEW ROLES"
+            },
+            new IdentityRole
+            {
+                Id = "5be06b26-d163-4027-84b9-31155c61393b",
+                Name = "View IP",
+                NormalizedName = "VIEW IP"
             }
         );
     }

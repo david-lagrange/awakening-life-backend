@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace AwakeningLifeBackend.Infrastructure.Presentation.Controllers;
 
 [ApiController]
-[Route("api/ip")]
-[Authorize]
-public class IpController : ControllerBase
+[Route("api/admin/ip")]
+[Authorize(Roles = "View IP")]
+public class AdminIpController : ControllerBase
 {
 
     [HttpGet]
