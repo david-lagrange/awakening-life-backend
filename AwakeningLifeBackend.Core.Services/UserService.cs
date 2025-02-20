@@ -72,19 +72,30 @@ internal sealed class UserService : IUserService
         _logger.LogInformation($"Successfully retrieved user {user.UserName} (ID: {userId})");
         var roles = await _userManager.GetRolesAsync(user);
 
-        //StripeCustomerDto? stripeCustomerDto = null;
-
-        //if (!string.IsNullOrEmpty(user.StripeCustomerId))
-        //{
-        //    var stripeCustomer = await _stripeService.GetCustomerByIdAsync(user.StripeCustomerId);
-        //    stripeCustomerDto = _mapper.Map<StripeCustomerDto>(stripeCustomer);
-        //}
-
         var userDto = _mapper.Map<UserDto>(user);
         userDto.Roles = roles.ToList();
-        //userDto.StripeCustomer = stripeCustomerDto;
 
         return userDto;
+    }
+
+    public async Task<UserTokensDto> GetUserTokensAsync(Guid userId, string accessToken)
+    {
+        _logger.LogInformation($"Attempting to retrieve user with ID: {userId}");
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+        if (user == null)
+        {
+            _logger.LogWarning($"User with ID: {userId} was not found");
+            throw new UserNotFoundException(userId);
+        }
+
+        var userTokens = new UserTokensDto
+        {
+            AccessToken = accessToken,
+            RefreshToken = user.RefreshToken
+        };
+
+        return userTokens;
     }
 
     public async Task<IdentityResult> DeleteUserAsync(Guid userId)
@@ -187,39 +198,6 @@ internal sealed class UserService : IUserService
 
         return result;
     }
-
-//    public async Task UpdateUserSubscriptionAsync(Guid userId, UserSubscriptionUpdateDto userSubscriptionUpdateDto)
-//    {
-//        _logger.LogInformation($"Attempting to update subscription for user with ID: {userId}");
-//        var user = await _userManager.FindByIdAsync(userId.ToString());
-
-//        if (user == null)
-//        {
-//            throw new UserNotFoundException(userId);
-//        }
-
-//        user.StripeProductId = userSubscriptionUpdateDto.StripeProductId;
-
-//        if (string.IsNullOrEmpty(user.StripeCustomerId))
-//        {
-//            _logger.LogInformation($"Creating new Stripe customer for user {user.UserName} (ID: {userId})");
-//#pragma warning disable CS8604 // Possible null reference argument.
-//            var stripeCustomer = await _stripeService.CreateCustomerAsync(user.Email, $"{user.FirstName} {user.LastName}", user.PhoneNumber);
-//#pragma warning restore CS8604 // Possible null reference argument.
-
-//            user.StripeCustomerId = stripeCustomer.Id;
-//        }
-
-//        var result = await _userManager.UpdateAsync(user);
-
-//        if (!result.Succeeded)
-//        {
-//            _logger.LogError($"Failed to update subscription for user {user.UserName} (ID: {userId}). Errors: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-//            throw new Exception("Failed to update user subscription.");
-//        }
-
-//        _logger.LogInformation($"Successfully updated subscription for user {user.UserName} (ID: {userId})");
-//    }
 
     private async Task<User> GetUserByEmailAsync(string email)
     {

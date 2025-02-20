@@ -4,97 +4,96 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DataTransferObjects;
 
-namespace AwakeningLifeBackend.Infrastructure.Presentation.Controllers
+namespace AwakeningLifeBackend.Infrastructure.Presentation.Controllers;
+
+[Route("api/users")]
+[ApiController]
+
+public class UsersController : ControllerBase
 {
-    [Route("api/users")]
-    [ApiController]
+    private readonly IServiceManager _service;
 
-    public class UsersController : ControllerBase
+    public UsersController(IServiceManager service) => _service = service;
+
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> GetUser()
     {
-        private readonly IServiceManager _service;
+        var userId = User.FindFirst("userId")?.Value;
 
-        public UsersController(IServiceManager service) => _service = service;
+        var user = await _service.UserService.GetUserByIdAsync(Guid.Parse(userId ?? ""));
+        return Ok(user);
+    }
 
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetUser()
-        {
-            var userId = User.FindFirst("userId")?.Value;
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> GetUserTokens()
+    {
+        var userId = User.FindFirst("userId")?.Value;
+        var accessToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            var user = await _service.UserService.GetUserByIdAsync(Guid.Parse(userId ?? ""));
-            return Ok(user);
-        }
+        var userTokens = await _service.UserService.GetUserTokensAsync(Guid.Parse(userId ?? ""), accessToken);
 
-        [HttpPut]
-        [Authorize]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> UpdateUser(UserForUpdateDto userForUpdateDto)
-        {
-            var userId = User.FindFirst("userId")?.Value;
+        return Ok(userTokens);
+    }
 
-            var result = await _service.UserService.UpdateUserAsync(Guid.Parse(userId ?? ""), userForUpdateDto);
+    [HttpPut]
+    [Authorize]
+    [ServiceFilter(typeof(ValidationFilterAttribute))]
+    public async Task<IActionResult> UpdateUser(UserForUpdateDto userForUpdateDto)
+    {
+        var userId = User.FindFirst("userId")?.Value;
 
-            return NoContent();
-        }
+        var result = await _service.UserService.UpdateUserAsync(Guid.Parse(userId ?? ""), userForUpdateDto);
 
-        //[HttpPut("subscription")]
-        //[Authorize]
-        //[ServiceFilter(typeof(ValidationFilterAttribute))]
-        //public async Task<IActionResult> UpdateUserSubscription(UserSubscriptionUpdateDto userSubscriptionUpdateDto)
-        //{
-        //    var userId = User.FindFirst("userId")?.Value;
+        return NoContent();
+    }
 
-        //    await _service.UserService.UpdateUserSubscriptionAsync(Guid.Parse(userId ?? ""), userSubscriptionUpdateDto);
+    [HttpPut("update-password")]
+    [ServiceFilter(typeof(ValidationFilterAttribute))]
+    public async Task<IActionResult> UpdatePassword([FromBody] UserForUpdatePasswordDto userForUpdatePasswordDto)
+    {
+        var userId = User.FindFirst("userId")?.Value;
 
-        //    return NoContent();
-        //}
+        await _service.UserService.UpdatePasswordAsync(Guid.Parse(userId ?? ""), userForUpdatePasswordDto);
 
-        [HttpPut("update-password")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> UpdatePassword([FromBody] UserForUpdatePasswordDto userForUpdatePasswordDto)
-        {
-            var userId = User.FindFirst("userId")?.Value;
-
-            await _service.UserService.UpdatePasswordAsync(Guid.Parse(userId ?? ""), userForUpdatePasswordDto);
-
-            return Ok();
-        }
+        return Ok();
+    }
 
 
-        [HttpPost("reset-password")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> ResetPasswordRequest([FromBody] UserForResetPasswordRequestDto userForResetPasswordDto)
-        {
-            await _service.UserService.SendResetPasswordEmailAsync(userForResetPasswordDto);
+    [HttpPost("reset-password")]
+    [ServiceFilter(typeof(ValidationFilterAttribute))]
+    public async Task<IActionResult> ResetPasswordRequest([FromBody] UserForResetPasswordRequestDto userForResetPasswordDto)
+    {
+        await _service.UserService.SendResetPasswordEmailAsync(userForResetPasswordDto);
 
-            return Ok();
-        }
+        return Ok();
+    }
 
-        [HttpPut("reset-password")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> ResetPasswordUpdate([FromBody] UserForResetPasswordUpdateDto userForResetPasswordDto)
-        {
-            await _service.UserService.ResetPasswordAsync(userForResetPasswordDto);
+    [HttpPut("reset-password")]
+    [ServiceFilter(typeof(ValidationFilterAttribute))]
+    public async Task<IActionResult> ResetPasswordUpdate([FromBody] UserForResetPasswordUpdateDto userForResetPasswordDto)
+    {
+        await _service.UserService.ResetPasswordAsync(userForResetPasswordDto);
 
-            return Ok();
-        }
+        return Ok();
+    }
 
-        [HttpPost("confirm-email-request")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> ConfirmEmailRequest([FromBody] UserForEmailConfirmationRequestDto confirmationRequestDto)
-        {
-            await _service.UserService.SendEmailConfirmationAsync(confirmationRequestDto);
+    [HttpPost("confirm-email-request")]
+    [ServiceFilter(typeof(ValidationFilterAttribute))]
+    public async Task<IActionResult> ConfirmEmailRequest([FromBody] UserForEmailConfirmationRequestDto confirmationRequestDto)
+    {
+        await _service.UserService.SendEmailConfirmationAsync(confirmationRequestDto);
 
-            return Ok();
-        }
+        return Ok();
+    }
 
-        [HttpPut("confirm-email")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> ConfirmEmail([FromBody] UserForEmailConfirmationDto confirmationDto)
-        {
-            await _service.UserService.ConfirmEmailAsync(confirmationDto);
+    [HttpPut("confirm-email")]
+    [ServiceFilter(typeof(ValidationFilterAttribute))]
+    public async Task<IActionResult> ConfirmEmail([FromBody] UserForEmailConfirmationDto confirmationDto)
+    {
+        await _service.UserService.ConfirmEmailAsync(confirmationDto);
 
-            return Ok();
-        }
+        return Ok();
     }
 }

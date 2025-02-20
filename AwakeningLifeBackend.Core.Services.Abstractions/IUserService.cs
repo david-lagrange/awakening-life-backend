@@ -8,9 +8,9 @@ public interface IUserService
 {
     Task<(IEnumerable<UserDto> users, MetaData metaData)> GetUsersAsync(UserParameters userParameters);
     Task<UserDto> GetUserByIdAsync(Guid userId);
+    Task<UserTokensDto> GetUserTokensAsync(Guid userId, string accessToken);
     Task<IdentityResult> DeleteUserAsync(Guid userId);
     Task<IdentityResult> UpdateUserAsync(Guid userId, UserForUpdateDto userForUpdateDto);
-    //Task UpdateUserSubscriptionAsync(Guid userId, UserSubscriptionUpdateDto userSubscriptionUpdateDto);
     Task SendResetPasswordEmailAsync(UserForResetPasswordRequestDto userForResetPasswordRequestDto);
     Task ResetPasswordAsync(UserForResetPasswordUpdateDto userForResetPasswordUpdateDto);
     Task SendEmailConfirmationAsync(UserForEmailConfirmationRequestDto userForEmailConfirmationRequestDto);
