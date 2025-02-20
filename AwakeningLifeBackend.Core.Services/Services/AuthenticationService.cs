@@ -39,19 +39,38 @@ internal sealed class AuthenticationService : IAuthenticationService
 
     public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
     {
+        _logger.LogInformation($"Attempting to register new user with email: {userForRegistration.Email}");
+
         foreach (var role in userForRegistration.Roles!)
         {
             if (!await _roleManager.RoleExistsAsync(role))
             {
+                _logger.LogError($"Registration failed. Role not found: {role}");
                 throw new RoleNotFoundException(role);
             }
         }
 
         var user = _mapper.Map<User>(userForRegistration);
+
+        if (string.IsNullOrEmpty(user.UserName))
+        {
+            var emailPrefix = userForRegistration.Email!.Split('@')[0];
+            user.UserName = emailPrefix;
+        }
+
+        user.UserName = $"{user.UserName}_{Guid.NewGuid().ToString().ToLower().Substring(0, 5)}";
+
         var result = await _userManager.CreateAsync(user, userForRegistration.Password!);
 
         if (result.Succeeded)
+        {
             await _userManager.AddToRolesAsync(user, userForRegistration.Roles!);
+            _logger.LogInformation($"Successfully registered new user. Username: {user.UserName}, Email: {user.Email}, Roles: {string.Join(", ", userForRegistration.Roles)}");
+        }
+        else
+        {
+            _logger.LogError($"User registration failed for email: {userForRegistration.Email}. Errors: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
 
         return result;
     }
