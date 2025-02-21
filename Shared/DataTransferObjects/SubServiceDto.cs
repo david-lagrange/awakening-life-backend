@@ -11,6 +11,7 @@ public record SubServiceProductDto
     public string? Description { get; init; }
     public DateTime Created { get; init; }
     public DateTime Updated { get; init; }
+    public IEnumerable<SubscriptionFeatureDto>? Features { get; set; }
     public IEnumerable<SubServicePriceDto>? Prices { get; set; }
 
 }

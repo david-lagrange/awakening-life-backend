@@ -13,7 +13,7 @@ internal sealed class SubscriptionFeatureRepository : RepositoryBase<Subscriptio
     {
     }
 
-    public async Task<IEnumerable<SubscriptionFeature>> GetSubscriptionFeaturesAsync(Guid productId, bool trackChanges, CancellationToken ct = default)
+    public async Task<IEnumerable<SubscriptionFeature>> GetSubscriptionFeaturesAsync(string productId, bool trackChanges, CancellationToken ct = default)
     {
         var subscriptionFeatures = await FindByCondition(e => e.ProductId != null && e.ProductId.Equals(productId), trackChanges)
             .OrderBy(e => e.FeatureOrder).ToListAsync();
@@ -21,7 +21,7 @@ internal sealed class SubscriptionFeatureRepository : RepositoryBase<Subscriptio
         return subscriptionFeatures;
     }
 
-    public async Task<SubscriptionFeature?> GetSubscriptionFeatureAsync(Guid productId, Guid id, bool trackChanges, CancellationToken ct = default) =>
+    public async Task<SubscriptionFeature?> GetSubscriptionFeatureAsync(string productId, Guid id, bool trackChanges, CancellationToken ct = default) =>
         await FindByCondition(e => e.ProductId != null && e.ProductId.Equals(productId) && e.SubscriptionFeatureId.Equals(id), trackChanges)
         .SingleOrDefaultAsync(ct);
 

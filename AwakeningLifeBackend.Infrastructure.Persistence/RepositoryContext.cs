@@ -27,6 +27,7 @@ public class RepositoryContext : IdentityDbContext<User>
         modelBuilder.ApplyConfiguration(new RoleConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
+        modelBuilder.ApplyConfiguration(new SubscriptionFeatureConfiguration());
     }
 
     public DbSet<BaseEntity>? BaseEntities { get; set; }

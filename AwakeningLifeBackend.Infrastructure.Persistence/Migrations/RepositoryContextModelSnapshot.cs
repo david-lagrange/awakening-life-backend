@@ -139,7 +139,7 @@ namespace AwakeningLifeBackend.Infrastructure.Persistence.Migrations
 
                     b.HasKey("SubscriptionFeatureId");
 
-                    b.ToTable("SubscriptionFeatures");
+                    b.ToTable("SubscriptionFeatures", (string)null);
                 });
 
             modelBuilder.Entity("AwakeningLifeBackend.Core.Domain.Entities.User", b =>

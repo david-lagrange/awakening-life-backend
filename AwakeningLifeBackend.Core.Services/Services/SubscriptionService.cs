@@ -61,6 +61,9 @@ internal sealed class SubscriptionService : ISubscriptionService
         {
             if (productDto.ProductId != null && pricesByProductId.TryGetValue(productDto.ProductId, out var productPrices))
             {
+                var subFeatures = await _repository.SubscriptionFeature.GetSubscriptionFeaturesAsync(productDto.ProductId, false);
+                var subFeatureDtos = _mapper.Map<IEnumerable<SubscriptionFeatureDto>>(subFeatures);
+                productDto.Features = subFeatureDtos;
                 productDto.Prices = productPrices;
             }
         }
