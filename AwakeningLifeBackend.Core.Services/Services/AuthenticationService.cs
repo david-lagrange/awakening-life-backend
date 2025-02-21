@@ -137,6 +137,13 @@ internal sealed class AuthenticationService : IAuthenticationService
 
                 await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_SUBSCRIPTION_ID")!);
             }
+
+            var subscriptions = await _stripeService.GetCustomerSubscriptionsAsync(_user.StripeCustomerId!);
+
+            if (subscriptions.Count() == 0)
+            {
+                await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_SUBSCRIPTION_ID")!);
+            }
         }
         catch (StripeException ex)
         {
