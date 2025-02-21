@@ -228,8 +228,6 @@ public class StripeService : IStripeService
                     Price = priceId,
                 },
             },
-            // Add trial period that never ends for free subscription
-            TrialEnd = DateTime.MaxValue.ToUniversalTime(),
         };
 
         var createdSub = await subscriptionService.CreateAsync(subscriptionOptions);
