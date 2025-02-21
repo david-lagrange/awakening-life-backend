@@ -189,8 +189,11 @@ internal sealed class AuthenticationService : IAuthenticationService
             new Claim(ClaimTypes.Name, _user!.UserName!),
             new Claim("username", _user!.UserName!),
             new Claim("email", _user!.Email!),
-            new Claim("emailConfirmed", _user!.EmailConfirmed.ToString()!),
+            new Claim("emailConfirmed", _user!.EmailConfirmed.ToString().ToLower()!),
         };
+
+        var isPaidSubscriber = await _stripeService.IsUserPaidSubscriber(_user.StripeCustomerId!);
+        claims.Add(new Claim("subscriptionType", isPaidSubscriber ? "1" : "0"));
 
         var roles = await _userManager.GetRolesAsync(_user);
 

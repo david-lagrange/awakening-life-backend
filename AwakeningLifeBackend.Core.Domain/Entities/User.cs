@@ -10,4 +10,5 @@ public class User : IdentityUser
     public DateTime RefreshTokenExpiryTime { get; set; }
     public bool IsDeleted { get; set; }
     public string? StripeCustomerId { get; set; }
+    public int SubscriptionType { get; set; }
 }
