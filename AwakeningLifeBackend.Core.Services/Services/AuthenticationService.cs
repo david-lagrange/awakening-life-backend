@@ -193,7 +193,7 @@ internal sealed class AuthenticationService : IAuthenticationService
         };
 
         var isPaidSubscriber = await _stripeService.IsUserPaidSubscriber(_user.StripeCustomerId!);
-        claims.Add(new Claim("subscriptionType", isPaidSubscriber ? "1" : "1"));
+        claims.Add(new Claim("subscriptionType", isPaidSubscriber ? "1" : "0"));
 
         var roles = await _userManager.GetRolesAsync(_user);
 
