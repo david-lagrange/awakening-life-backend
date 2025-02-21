@@ -122,6 +122,23 @@ internal sealed class AuthenticationService : IAuthenticationService
         if (populateExp)
             _user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
+        try
+        {
+            if (string.IsNullOrEmpty(_user.StripeCustomerId))
+            {
+                _logger.LogInformation($"Creating new Stripe customer for user {_user.UserName}");
+#pragma warning disable CS8604 // Possible null reference argument.
+                var stripeCustomer = await _stripeService.CreateCustomerAsync(_user.Email);
+#pragma warning restore CS8604 // Possible null reference argument.
+
+                _user.StripeCustomerId = stripeCustomer.Id;
+            }
+        }
+        catch (StripeException ex)
+        {
+            _logger.LogError($"Failed to create Stripe customer for user {_user.Email}. Error: {ex.Message}");
+        }
+
         await _userManager.UpdateAsync(_user);
 
         var accessToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
