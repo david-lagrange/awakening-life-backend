@@ -5,7 +5,7 @@ namespace AwakeningLifeBackend.Infrastructure.ExternalServices;
 public interface IStripeService
 {
     Task<bool> IsUserPaidSubscriber(string email);
-    Task<Customer> CreateCustomerAsync(string email, string name, string phone);
+    Task<Customer> CreateCustomerAsync(string email);
     Task<(IEnumerable<Product> Products, IEnumerable<Price> Prices)> GetProductsAndPricesAsync();
     Task<IEnumerable<Customer>> GetAllCustomersAsync();
     Task<Customer> GetCustomerByIdAsync(string customerId);

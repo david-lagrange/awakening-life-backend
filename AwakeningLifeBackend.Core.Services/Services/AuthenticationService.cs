@@ -12,6 +12,8 @@ using System.Security.Cryptography;
 using AwakeningLifeBackend.Core.Domain.ConfigurationModels;
 using Microsoft.Extensions.Options;
 using AwakeningLifeBackend.Core.Services.Abstractions.Services;
+using AwakeningLifeBackend.Infrastructure.ExternalServices;
+using Stripe;
 
 namespace AwakeningLifeBackend.Core.Services.Services;
 
@@ -24,9 +26,10 @@ internal sealed class AuthenticationService : IAuthenticationService
     private readonly IOptions<JwtConfiguration> _configuration;
     private readonly JwtConfiguration _jwtConfiguration;
     private User? _user;
+    private readonly IStripeService _stripeService;
 
     public AuthenticationService(ILoggerManager logger, IMapper mapper,
-        UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IOptions<JwtConfiguration> configuration)
+        UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IOptions<JwtConfiguration> configuration, IStripeService stripeService)
     {
         _logger = logger;
         _mapper = mapper;
@@ -35,6 +38,7 @@ internal sealed class AuthenticationService : IAuthenticationService
         _configuration = configuration;
         _jwtConfiguration = new JwtConfiguration();
         _jwtConfiguration = _configuration.Value;
+        _stripeService = stripeService;
     }
 
     public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
@@ -59,6 +63,18 @@ internal sealed class AuthenticationService : IAuthenticationService
         }
 
         user.UserName = $"{user.UserName}_{Guid.NewGuid().ToString().ToLower().Substring(0, 5)}";
+
+        try
+        {
+            _logger.LogInformation($"Creating new Stripe customer for user {user.Email}");
+            var stripeCustomer = await _stripeService.CreateCustomerAsync(user.Email);
+
+            user.StripeCustomerId = stripeCustomer.Id;
+        }
+        catch (StripeException ex)
+        {
+            _logger.LogError($"Failed to create Stripe customer for user {user.Email}. Error: {ex.Message}");
+        }
 
         var result = await _userManager.CreateAsync(user, userForRegistration.Password!);
 

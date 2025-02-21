@@ -13,13 +13,11 @@ public class StripeService : IStripeService
         }
         StripeConfiguration.ApiKey = stripeSecret;
     }
-    public async Task<Customer> CreateCustomerAsync(string email, string name, string phone)
+    public async Task<Customer> CreateCustomerAsync(string email)
     {
         var options = new CustomerCreateOptions
         {
-            Email = email,
-            Name = name,
-            Phone = phone
+            Email = email
         };
 
         var customerService = new CustomerService();
