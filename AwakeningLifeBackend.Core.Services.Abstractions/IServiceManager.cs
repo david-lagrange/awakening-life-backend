@@ -8,4 +8,5 @@ public interface IServiceManager
     IDependantEntityService DependantEntityService { get; }
     IAuthenticationService AuthenticationService { get; }
     IUserService UserService { get; }
+    ISubscriptionService SubscriptionService { get; }
 }

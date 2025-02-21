@@ -200,4 +200,7 @@ public static class ServiceExtensions
     }
     public static void ConfigureEmailService(this IServiceCollection services) =>
         services.AddScoped<IEmailService, EmailService>();
+
+    public static void ConfigureStripeService(this IServiceCollection services) =>
+        services.AddScoped<IStripeService, StripeService>();
 }

@@ -34,6 +34,7 @@ builder.Services.AddJwtConfiguration(builder.Configuration);
 builder.Services.ConfigureSwagger();
 builder.Services.ConfigureResend();
 builder.Services.ConfigureEmailService();
+builder.Services.ConfigureStripeService();
 
 builder.Services.AddControllers(config =>
 {
