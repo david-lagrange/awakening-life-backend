@@ -214,4 +214,22 @@ public class StripeService : IStripeService
         var subscriptionService = new SubscriptionService();
         return await subscriptionService.CancelAsync(subscriptionId, new SubscriptionCancelOptions());
     }
+
+    public async Task<Subscription> AddFreeSubscriptionAsync(string customerId, string priceId)
+    {
+        var subscriptionService = new SubscriptionService();
+        var subscriptionOptions = new SubscriptionCreateOptions
+        {
+            Customer = customerId,
+            Items = new List<SubscriptionItemOptions>
+            {
+                new SubscriptionItemOptions
+                {
+                    Price = priceId,
+                },
+            },
+        };
+
+        return await subscriptionService.CreateAsync(subscriptionOptions);
+    }
 }

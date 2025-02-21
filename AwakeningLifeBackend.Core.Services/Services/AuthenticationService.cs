@@ -70,6 +70,8 @@ internal sealed class AuthenticationService : IAuthenticationService
             var stripeCustomer = await _stripeService.CreateCustomerAsync(user.Email);
 
             user.StripeCustomerId = stripeCustomer.Id;
+
+            await _stripeService.AddFreeSubscriptionAsync(user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_SUBSCRIPTION_ID")!);
         }
         catch (StripeException ex)
         {
@@ -132,6 +134,8 @@ internal sealed class AuthenticationService : IAuthenticationService
 #pragma warning restore CS8604 // Possible null reference argument.
 
                 _user.StripeCustomerId = stripeCustomer.Id;
+
+                await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_SUBSCRIPTION_ID")!);
             }
         }
         catch (StripeException ex)
