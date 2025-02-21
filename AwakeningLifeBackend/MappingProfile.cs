@@ -32,7 +32,7 @@ public class MappingProfile : Profile
         CreateMap<Subscription, SubServiceSubscriptionDto>()
             .ForMember(s => s.SubscriptionId, opt => opt.MapFrom(x => x.Id));
 
-        CreateMap<SubscriptionItem, SubscriptionFeatureDto>().ReverseMap();
+        CreateMap<SubscriptionFeature, SubscriptionFeatureDto>().ReverseMap();
     }
 
     public static DateTime GetEstimatedRenewalDate(Price price)
