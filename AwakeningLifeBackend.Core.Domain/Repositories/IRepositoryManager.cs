@@ -6,6 +6,7 @@ public interface IRepositoryManager
 {
     IBaseEntityRepository BaseEntity { get; }
     IDependantEntityRepository DependantEntity { get; }
+    ISubscriptionFeatureRepository SubscriptionFeature { get; }
     Task SaveAsync(CancellationToken ct = default);
     IDbContextTransaction BeginTransaction();
 }

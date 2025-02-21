@@ -31,4 +31,5 @@ public class RepositoryContext : IdentityDbContext<User>
 
     public DbSet<BaseEntity>? BaseEntities { get; set; }
     public DbSet<DependantEntity>? DependantEntities { get; set; }
+    public DbSet<SubscriptionFeature>? SubscriptionFeatures { get; set; }
 }
