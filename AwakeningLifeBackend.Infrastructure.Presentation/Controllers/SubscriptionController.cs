@@ -82,4 +82,13 @@ public class SubscriptionController : ControllerBase
 
         return Ok();
     }
+
+    [HttpPost("setup-intent")]
+    public async Task<IActionResult> CreateSetupIntent()
+    {
+        var userId = User.FindFirst("userId")?.Value;
+        var setupIntent = await _service.SubscriptionService.CreateSetupIntentAsync(Guid.Parse(userId ?? ""));
+        
+        return Ok(setupIntent);
+    }
 }

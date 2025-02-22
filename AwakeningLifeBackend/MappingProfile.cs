@@ -31,6 +31,7 @@ public class MappingProfile : Profile
             .ForMember(c => c.CustomerId, opt => opt.MapFrom(x => x.Id));
         CreateMap<Subscription, SubServiceSubscriptionDto>()
             .ForMember(s => s.SubscriptionId, opt => opt.MapFrom(x => x.Id));
+        CreateMap<SetupIntent, SubServiceSetupIntentDto>();
 
         CreateMap<SubscriptionFeature, SubscriptionFeatureDto>().ReverseMap();
     }

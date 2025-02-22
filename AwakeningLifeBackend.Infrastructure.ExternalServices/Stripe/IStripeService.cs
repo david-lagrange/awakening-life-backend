@@ -15,4 +15,5 @@ public interface IStripeService
     Task<(IEnumerable<Customer> Customers, IEnumerable<Invoice> Invoices)> GetCustomersWithInvoicesAsync();
     Task<Subscription> UpdateSubscriptionAutoRenewal(string subscriptionId, bool autoRenew);
     Task<Subscription> AddFreeSubscriptionAsync(string customerId, string priceId);
+    Task<string> CreateSetupIntentAsync(string customerId);
 }

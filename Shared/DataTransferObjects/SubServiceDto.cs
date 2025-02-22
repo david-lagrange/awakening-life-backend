@@ -101,3 +101,8 @@ public record SubServiceSubscriptionRenewalUpdateDto
 {
     public bool IsAutoRenew { get; init; }
 }
+
+public record SubServiceSetupIntentDto
+{
+    public string? ClientSecret { get; init; }
+}

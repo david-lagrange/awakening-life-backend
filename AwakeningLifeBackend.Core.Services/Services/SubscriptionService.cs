@@ -373,4 +373,15 @@ internal sealed class SubscriptionService : ISubscriptionService
         return user.StripeCustomerId;
     }
 
+    public async Task<SubServiceSetupIntentDto> CreateSetupIntentAsync(Guid userId)
+    {
+        var customerId = await GetUserStripeCustomerId(userId);
+        var clientSecret = await _stripeService.CreateSetupIntentAsync(customerId);
+        
+        return new SubServiceSetupIntentDto
+        {
+            ClientSecret = clientSecret
+        };
+    }
+
 }

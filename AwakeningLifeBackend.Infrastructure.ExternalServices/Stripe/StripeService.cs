@@ -234,4 +234,18 @@ public class StripeService : IStripeService
 
         return createdSub;
     }
+
+    public async Task<string> CreateSetupIntentAsync(string customerId)
+    {
+        var service = new SetupIntentService();
+        var options = new SetupIntentCreateOptions
+        {
+            Customer = customerId,
+            PaymentMethodTypes = new List<string> { "card" },
+            Usage = "off_session" // This allows the payment method to be used for future payments
+        };
+
+        var setupIntent = await service.CreateAsync(options);
+        return setupIntent.ClientSecret;
+    }
 }
