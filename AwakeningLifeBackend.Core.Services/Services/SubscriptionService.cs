@@ -385,4 +385,20 @@ internal sealed class SubscriptionService : ISubscriptionService
         };
     }
 
+    public async Task UpdateDefaultPaymentMethodAsync(Guid userId, string paymentMethodId)
+    {
+        var customerId = await GetUserStripeCustomerId(userId);
+        
+        // Verify the payment method belongs to the customer
+        var paymentMethods = await _stripeService.GetCustomerPaymentMethodsAsync(customerId);
+        var paymentMethod = paymentMethods.FirstOrDefault(pm => pm.Id == paymentMethodId);
+        
+        if (paymentMethod == null)
+        {
+            throw new PaymentMethodNotFoundException(paymentMethodId);
+        }
+        
+        await _stripeService.UpdateDefaultPaymentMethodAsync(customerId, paymentMethodId);
+    }
+
 }

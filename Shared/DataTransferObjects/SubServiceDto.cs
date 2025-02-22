@@ -107,3 +107,8 @@ public record SubServiceSetupIntentDto
 {
     public string? ClientSecret { get; init; }
 }
+
+public record SubServiceDefaultPaymentMethodUpdateDto
+{
+    public string PaymentMethodId { get; init; } = string.Empty;
+}

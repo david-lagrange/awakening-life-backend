@@ -16,4 +16,5 @@ public interface IStripeService
     Task<Subscription> UpdateSubscriptionAutoRenewal(string subscriptionId, bool autoRenew);
     Task<Subscription> AddFreeSubscriptionAsync(string customerId, string priceId);
     Task<string> CreateSetupIntentAsync(string customerId);
+    Task UpdateDefaultPaymentMethodAsync(string customerId, string paymentMethodId);
 }

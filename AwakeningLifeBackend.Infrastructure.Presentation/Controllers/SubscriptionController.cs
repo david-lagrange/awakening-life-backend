@@ -91,4 +91,16 @@ public class SubscriptionController : ControllerBase
         
         return Ok(setupIntent);
     }
+
+    [HttpPut("customers/payment-methods/default")]
+    public async Task<IActionResult> UpdateDefaultPaymentMethod(
+        [FromBody] SubServiceDefaultPaymentMethodUpdateDto defaultPaymentMethodUpdateDto)
+    {
+        var userId = User.FindFirst("userId")?.Value;
+        await _service.SubscriptionService.UpdateDefaultPaymentMethodAsync(
+            Guid.Parse(userId ?? ""),
+            defaultPaymentMethodUpdateDto.PaymentMethodId);
+        
+        return Ok();
+    }
 }

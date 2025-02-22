@@ -249,4 +249,18 @@ public class StripeService : IStripeService
         var setupIntent = await service.CreateAsync(options);
         return setupIntent.ClientSecret;
     }
+
+    public async Task UpdateDefaultPaymentMethodAsync(string customerId, string paymentMethodId)
+    {
+        var customerService = new CustomerService();
+        var options = new CustomerUpdateOptions
+        {
+            InvoiceSettings = new CustomerInvoiceSettingsOptions
+            {
+                DefaultPaymentMethod = paymentMethodId
+            }
+        };
+        
+        await customerService.UpdateAsync(customerId, options);
+    }
 }

@@ -12,6 +12,7 @@ public interface ISubscriptionService
     Task<SubServiceSubscriptionDto> UpdateUserSubscriptionAutoRenewalAsync(Guid userId, string subscriptionId, SubServiceSubscriptionRenewalUpdateDto stripeSubscriptionRenewalUpdateDto);
     Task CancelSubscriptionAutoRenewalAsync(Guid userId);
     Task<SubServiceSetupIntentDto> CreateSetupIntentAsync(Guid userId);
+    Task UpdateDefaultPaymentMethodAsync(Guid userId, string paymentMethodId);
 
     // Admin
     Task<IEnumerable<SubServiceProductDto>> GetProductsAndPricesAsync();
