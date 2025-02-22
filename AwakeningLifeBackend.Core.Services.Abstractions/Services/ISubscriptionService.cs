@@ -13,6 +13,7 @@ public interface ISubscriptionService
     Task CancelSubscriptionAutoRenewalAsync(Guid userId);
     Task<SubServiceSetupIntentDto> CreateSetupIntentAsync(Guid userId);
     Task UpdateDefaultPaymentMethodAsync(Guid userId, string paymentMethodId);
+    Task DeletePaymentMethodAsync(Guid userId, string paymentMethodId);
 
     // Admin
     Task<IEnumerable<SubServiceProductDto>> GetProductsAndPricesAsync();

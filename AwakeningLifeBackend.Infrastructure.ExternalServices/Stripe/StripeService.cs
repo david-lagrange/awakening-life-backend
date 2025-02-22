@@ -263,4 +263,10 @@ public class StripeService : IStripeService
         
         await customerService.UpdateAsync(customerId, options);
     }
+
+    public async Task DeletePaymentMethodAsync(string paymentMethodId)
+    {
+        var service = new PaymentMethodService();
+        await service.DetachAsync(paymentMethodId);
+    }
 }

@@ -103,4 +103,15 @@ public class SubscriptionController : ControllerBase
         
         return Ok();
     }
+
+    [HttpDelete("customers/payment-methods/{paymentMethodId}")]
+    public async Task<IActionResult> DeletePaymentMethod(string paymentMethodId)
+    {
+        var userId = User.FindFirst("userId")?.Value;
+        await _service.SubscriptionService.DeletePaymentMethodAsync(
+            Guid.Parse(userId ?? ""),
+            paymentMethodId);
+        
+        return Ok();
+    }
 }

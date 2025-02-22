@@ -401,4 +401,27 @@ internal sealed class SubscriptionService : ISubscriptionService
         await _stripeService.UpdateDefaultPaymentMethodAsync(customerId, paymentMethodId);
     }
 
+    public async Task DeletePaymentMethodAsync(Guid userId, string paymentMethodId)
+    {
+        var customerId = await GetUserStripeCustomerId(userId);
+        
+        // Verify the payment method belongs to the customer
+        var paymentMethods = await _stripeService.GetCustomerPaymentMethodsAsync(customerId);
+        var paymentMethod = paymentMethods.FirstOrDefault(pm => pm.Id == paymentMethodId);
+        
+        if (paymentMethod == null)
+        {
+            throw new PaymentMethodNotFoundException(paymentMethodId);
+        }
+
+        // Check if this is the default payment method
+        var customer = await _stripeService.GetCustomerByIdAsync(customerId);
+        if (paymentMethodId == customer.InvoiceSettings?.DefaultPaymentMethodId)
+        {
+            throw new InvalidOperationException("Cannot delete the default payment method");
+        }
+        
+        await _stripeService.DeletePaymentMethodAsync(paymentMethodId);
+    }
+
 }
