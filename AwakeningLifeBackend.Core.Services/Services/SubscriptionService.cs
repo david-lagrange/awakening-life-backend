@@ -279,7 +279,8 @@ internal sealed class SubscriptionService : ISubscriptionService
                 Last4 = pm.Card.Last4,
                 ExpMonth = pm.Card.ExpMonth,
                 ExpYear = pm.Card.ExpYear,
-                IsDefault = pm.Id == customer.InvoiceSettings?.DefaultPaymentMethodId
+                IsDefault = pm.Id == customer.InvoiceSettings?.DefaultPaymentMethodId,
+                CardholderName = pm.BillingDetails?.Name
             };
 
             paymentMethodDtos.Add(paymentMethodDto);

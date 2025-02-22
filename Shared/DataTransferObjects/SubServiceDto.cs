@@ -95,6 +95,7 @@ public class SubServicePaymentMethodDto
     public long? ExpMonth { get; set; }
     public long? ExpYear { get; set; }
     public bool? IsDefault { get; set; }
+    public string? CardholderName { get; set; }
 }
 
 public record SubServiceSubscriptionRenewalUpdateDto

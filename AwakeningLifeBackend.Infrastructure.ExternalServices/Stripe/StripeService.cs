@@ -171,7 +171,8 @@ public class StripeService : IStripeService
         var options = new PaymentMethodListOptions
         {
             Customer = customerId,
-            Type = "card"
+            Type = "card",
+            Expand = new List<string> { "data.billing_details" }
         };
 
         var service = new PaymentMethodService();
