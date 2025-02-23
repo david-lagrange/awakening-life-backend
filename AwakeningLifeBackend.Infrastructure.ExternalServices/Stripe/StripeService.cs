@@ -269,4 +269,22 @@ public class StripeService : IStripeService
         var service = new PaymentMethodService();
         await service.DetachAsync(paymentMethodId);
     }
+
+    public async Task<string> GetSubscriptionProductId(string customerId)
+    {
+        var subscriptions = await GetCustomerSubscriptionsAsync(customerId);
+        
+        var mostRecentSubscription = subscriptions
+            .Where(s => s.Status == "active")
+            .OrderByDescending(s => s.CurrentPeriodStart)
+            .FirstOrDefault();
+
+        if (mostRecentSubscription == null || 
+            mostRecentSubscription.Items.Data.FirstOrDefault()?.Price?.ProductId == null)
+        {
+            return string.Empty;
+        }
+
+        return mostRecentSubscription.Items.Data.First().Price.ProductId;
+    }
 }

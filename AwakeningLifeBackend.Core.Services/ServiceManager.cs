@@ -23,7 +23,7 @@ public sealed class ServiceManager : IServiceManager
     public ServiceManager(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IOptions<JwtConfiguration> configuration,
         IEmailService emailService, IStripeService stripeService)
     {
-        _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, roleManager, configuration, stripeService));
+        _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, roleManager, configuration, stripeService, repositoryManager));
         _baseEntityService = new Lazy<IBaseEntityService>(() => new BaseEntityService(repositoryManager, logger, mapper));
         _dependantEntityService = new Lazy<IDependantEntityService>(() => new DependantEntityService(repositoryManager, logger, mapper));
         _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService));

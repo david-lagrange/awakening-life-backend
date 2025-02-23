@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using AwakeningLifeBackend.Core.Services.Abstractions.Services;
 using AwakeningLifeBackend.Infrastructure.ExternalServices;
 using Stripe;
+using AwakeningLifeBackend.Core.Domain.Repositories;
 
 namespace AwakeningLifeBackend.Core.Services.Services;
 
@@ -27,9 +28,10 @@ internal sealed class AuthenticationService : IAuthenticationService
     private readonly JwtConfiguration _jwtConfiguration;
     private User? _user;
     private readonly IStripeService _stripeService;
+    private readonly IRepositoryManager _repository;
 
     public AuthenticationService(ILoggerManager logger, IMapper mapper,
-        UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IOptions<JwtConfiguration> configuration, IStripeService stripeService)
+        UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IOptions<JwtConfiguration> configuration, IStripeService stripeService, IRepositoryManager repository)
     {
         _logger = logger;
         _mapper = mapper;
@@ -39,6 +41,7 @@ internal sealed class AuthenticationService : IAuthenticationService
         _jwtConfiguration = new JwtConfiguration();
         _jwtConfiguration = _configuration.Value;
         _stripeService = stripeService;
+        _repository = repository;
     }
 
     public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
@@ -206,12 +209,54 @@ internal sealed class AuthenticationService : IAuthenticationService
         var isPaidSubscriber = await _stripeService.IsUserPaidSubscriber(_user.StripeCustomerId!);
         claims.Add(new Claim("subscriptionType", isPaidSubscriber ? "1" : "0"));
 
+        var subscriptionProductId = await _stripeService.GetSubscriptionProductId(_user.StripeCustomerId!);
+
+        await MapRolesForSubscription(subscriptionProductId);
+
         var roles = await _userManager.GetRolesAsync(_user);
 
         foreach (var role in roles)
             claims.Add(new Claim("roles", role));
 
         return claims;
+    }
+
+    private async Task MapRolesForSubscription(string productId)
+    {
+        var subscriptionRoles = await _repository.SubscriptionRole.GetSubscriptionRolesAsync(false);
+        var currentUserRoles = await _userManager.GetRolesAsync(_user);
+
+        var currentSubscriptionRoles = subscriptionRoles
+            .Where(sr => sr.ProductId == productId)
+            .Select(sr => sr.Role?.Name)
+            .Where(role => role != null)
+            .ToList();
+
+        var allManagedRoles = subscriptionRoles
+            .Select(sr => sr.Role?.Name)
+            .Where(role => role != null)
+            .Distinct()
+            .ToList();
+
+        var rolesToRemove = currentUserRoles
+            .Where(role => allManagedRoles.Contains(role) && !currentSubscriptionRoles.Contains(role))
+            .ToList();
+
+        var rolesToAdd = currentSubscriptionRoles
+            .Where(role => !currentUserRoles.Contains(role!))
+            .ToList();
+
+        if (rolesToRemove.Any())
+        {
+            await _userManager.RemoveFromRolesAsync(_user, rolesToRemove);
+            _logger.LogInformation($"Removed subscription roles for user {_user.UserName}: {string.Join(", ", rolesToRemove)}");
+        }
+
+        if (rolesToAdd.Any())
+        {
+            await _userManager.AddToRolesAsync(_user, rolesToAdd!);
+            _logger.LogInformation($"Added subscription roles for user {_user.UserName}: {string.Join(", ", rolesToAdd)}");
+        }
     }
 
     private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
