@@ -301,14 +301,24 @@ public class StripeService : IStripeService
                     Price = priceId,
                 },
             },
-            PaymentBehavior = "default_incomplete", // Ensures immediate payment attempt
+            PaymentSettings = new SubscriptionPaymentSettingsOptions
+            {
+                PaymentMethodTypes = new List<string> { "card" },
+            },
             DefaultPaymentMethod = paymentMethodId,
+            CollectionMethod = "charge_automatically",
             Expand = new List<string> { "latest_invoice.payment_intent" }
         };
 
         var subscription = await subscriptionService.CreateAsync(subscriptionOptions);
 
-        // Handle the payment if needed
+        // Check if payment needs additional action
+        if (subscription.LatestInvoice?.PaymentIntent?.Status == "requires_action")
+        {
+            throw new Exception("This payment requires additional action from the customer.");
+        }
+
+        // Check if payment failed
         if (subscription.LatestInvoice?.PaymentIntent?.Status == "requires_payment_method")
         {
             throw new Exception("Payment failed. Please try again with a different payment method.");
