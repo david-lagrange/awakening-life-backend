@@ -206,9 +206,6 @@ internal sealed class AuthenticationService : IAuthenticationService
             new Claim("emailConfirmed", _user!.EmailConfirmed.ToString().ToLower()!),
         };
 
-        var isPaidSubscriber = await _stripeService.IsUserPaidSubscriber(_user.StripeCustomerId!);
-        claims.Add(new Claim("subscriptionType", isPaidSubscriber ? "1" : "0"));
-
         var subscriptionProductId = await _stripeService.GetSubscriptionProductId(_user.StripeCustomerId!);
 
         await MapRolesForSubscription(subscriptionProductId);
