@@ -19,4 +19,5 @@ public interface IStripeService
     Task UpdateDefaultPaymentMethodAsync(string customerId, string paymentMethodId);
     Task DeletePaymentMethodAsync(string paymentMethodId);
     Task<string> GetSubscriptionProductId(string customerId);
+    Task<Subscription> CreateSubscriptionAsync(string customerId, string priceId, string paymentMethodId);
 }

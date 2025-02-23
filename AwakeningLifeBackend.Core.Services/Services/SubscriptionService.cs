@@ -424,4 +424,31 @@ internal sealed class SubscriptionService : ISubscriptionService
         await _stripeService.DeletePaymentMethodAsync(paymentMethodId);
     }
 
+    public async Task<SubServiceSubscriptionDto> ChangeSubscriptionAsync(Guid userId, string newPriceId, string paymentMethodId, string? currentSubscriptionId)
+    {
+        var customerId = await GetUserStripeCustomerId(userId);
+        
+        // Verify the payment method belongs to the customer
+        var paymentMethods = await _stripeService.GetCustomerPaymentMethodsAsync(customerId);
+        var paymentMethod = paymentMethods.FirstOrDefault(pm => pm.Id == paymentMethodId);
+        
+        if (paymentMethod == null)
+        {
+            throw new PaymentMethodNotFoundException(paymentMethodId);
+        }
+
+        // If there's an existing subscription, cancel it at period end
+        if (!string.IsNullOrEmpty(currentSubscriptionId))
+        {
+            await _stripeService.UpdateSubscriptionAutoRenewal(currentSubscriptionId, false);
+        }
+
+        // Create new subscription
+        var subscription = await _stripeService.CreateSubscriptionAsync(customerId, newPriceId, paymentMethodId);
+        
+        // Get the updated subscription details
+        var subscriptions = await GetCustomerSubscriptionsAsync(customerId);
+        return subscriptions.First(s => s.SubscriptionId == subscription.Id);
+    }
+
 }

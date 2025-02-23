@@ -287,4 +287,33 @@ public class StripeService : IStripeService
 
         return mostRecentSubscription.Items.Data.First().Price.ProductId;
     }
+
+    public async Task<Subscription> CreateSubscriptionAsync(string customerId, string priceId, string paymentMethodId)
+    {
+        var subscriptionService = new SubscriptionService();
+        var subscriptionOptions = new SubscriptionCreateOptions
+        {
+            Customer = customerId,
+            Items = new List<SubscriptionItemOptions>
+            {
+                new SubscriptionItemOptions
+                {
+                    Price = priceId,
+                },
+            },
+            PaymentBehavior = "default_incomplete", // Ensures immediate payment attempt
+            DefaultPaymentMethod = paymentMethodId,
+            Expand = new List<string> { "latest_invoice.payment_intent" }
+        };
+
+        var subscription = await subscriptionService.CreateAsync(subscriptionOptions);
+
+        // Handle the payment if needed
+        if (subscription.LatestInvoice?.PaymentIntent?.Status == "requires_payment_method")
+        {
+            throw new Exception("Payment failed. Please try again with a different payment method.");
+        }
+
+        return subscription;
+    }
 }

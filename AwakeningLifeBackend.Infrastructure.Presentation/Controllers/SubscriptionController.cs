@@ -114,4 +114,26 @@ public class SubscriptionController : ControllerBase
         
         return Ok();
     }
+
+    [HttpPost("customers/subscriptions/change")]
+    public async Task<IActionResult> ChangeSubscription([FromBody] SubServiceSubscriptionChangeDto changeDto)
+    {
+        try
+        {
+            var userId = User.FindFirst("userId")?.Value;
+            
+            var subscription = await _service.SubscriptionService.ChangeSubscriptionAsync(
+                Guid.Parse(userId ?? ""),
+                changeDto.NewPriceId,
+                changeDto.PaymentMethodId,
+                changeDto.CurrentSubscriptionId);
+
+            return Ok(subscription);
+        }
+        catch (Exception ex)
+        {
+            // Log the error
+            return BadRequest(new { error = ex.Message });
+        }
+    }
 }

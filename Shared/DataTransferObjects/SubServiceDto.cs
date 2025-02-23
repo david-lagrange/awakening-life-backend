@@ -112,3 +112,10 @@ public record SubServiceDefaultPaymentMethodUpdateDto
 {
     public string PaymentMethodId { get; init; } = string.Empty;
 }
+
+public record SubServiceSubscriptionChangeDto
+{
+    public string NewPriceId { get; init; } = string.Empty;
+    public string PaymentMethodId { get; init; } = string.Empty;
+    public string? CurrentSubscriptionId { get; init; }
+}
