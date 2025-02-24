@@ -243,8 +243,22 @@ internal sealed class SubscriptionService : ISubscriptionService
             subscriptionDtos.Add(subscriptionDto);
         }
 
-        // Order the subscriptions by active then current period start
-        subscriptionDtos = subscriptionDtos.OrderByDescending(s => s.CurrentPeriodStart).ToList();
+        var freeSubscriptionId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_SUBSCRIPTION_ID")!;
+
+        if (string.IsNullOrEmpty(freeSubscriptionId))
+        {
+            _logger.LogError("Failed to get free subscription ID from environment variables.");
+            throw new EnvironmentVariableNotSetException("Failed to get free subscription ID from environment variables.");
+        }
+
+        subscriptionDtos = subscriptionDtos
+            .OrderByDescending(s => 
+                s.Status == "active" &&
+                s.Product?.ProductId != freeSubscriptionId && 
+                s.CurrentPeriodEnd > DateTime.UtcNow)
+            .ThenByDescending(s => s.CurrentPeriodEnd)
+            .ThenByDescending(s => s.CurrentPeriodStart)
+            .ToList();
 
         return subscriptionDtos;
     }
