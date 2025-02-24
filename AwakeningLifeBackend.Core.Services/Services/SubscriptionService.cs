@@ -535,6 +535,19 @@ internal sealed class SubscriptionService : ISubscriptionService
 
         var updatedSubscription = await _stripeService.UpdateSubscriptionAutoRenewal(subscriptionId, false);
 
+        string? freeSubscriptionId = null;
+        if (freePriceId != null) { 
+            var hasActiveFreeSubscription = subscriptions.Any(s =>
+                s.Status == "active" &&
+                s.Items.Data.Any(i => i.Price.Id == freePriceId));
+
+            if (!hasActiveFreeSubscription)
+            {
+                var freeSubscription = await _stripeService.AddFreeSubscriptionAsync(customerId, freePriceId);
+                freeSubscriptionId = freeSubscription.Id;
+            }
+        }
+
         // Actually cancel all subscriptions that are not a free one or the one being canceled
         var allSubscriptions = await _stripeService.GetCustomerSubscriptionsAsync(customerId);
         foreach (var sub in allSubscriptions)
