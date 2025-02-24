@@ -479,4 +479,43 @@ internal sealed class SubscriptionService : ISubscriptionService
         return allSubscriptions.First(s => s.SubscriptionId == subscriptionId);
     }
 
+    public async Task<SubServiceSubscriptionDto> ReactivateSubscriptionAsync(Guid userId, string subscriptionId)
+    {
+        var customerId = await GetUserStripeCustomerId(userId);
+        var subscriptions = await _stripeService.GetCustomerSubscriptionsAsync(customerId);
+        var subscription = subscriptions.FirstOrDefault(s => s.Id == subscriptionId);
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+        if (user == null)
+        {
+            throw new UserNotFoundException(userId);
+        }
+
+        if (user.Email == null)
+        {
+            throw new UserHasNoEmailSetException(new Guid(user.Id));
+        }
+
+        if (subscription == null)
+        {
+            throw new SubscriptionNotFoundException(subscriptionId);
+        }
+
+        // Turn auto-renewal back on
+        var updatedSubscription = await _stripeService.UpdateSubscriptionAutoRenewal(subscriptionId, true);
+        
+        // Remove the cancellation record
+        var cancellation = await _repository.SubscriptionCancelation
+            .GetSubscriptionCancelationBySubscriptionIdAsync(subscriptionId, trackChanges: true);
+        
+        if (cancellation != null)
+        {
+            await _repository.SubscriptionCancelation.DeleteSubscriptionCancelationAsync(cancellation);
+            await _repository.SaveAsync();
+        }
+
+        var allSubscriptions = await GetCustomerSubscriptionsAsync(customerId);
+        return allSubscriptions.First(s => s.SubscriptionId == subscriptionId);
+    }
+
 }

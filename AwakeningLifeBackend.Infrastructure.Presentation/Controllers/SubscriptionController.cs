@@ -138,4 +138,16 @@ public class SubscriptionController : ControllerBase
         
         return Ok(subscription);
     }
+
+    [HttpPut("customers/subscriptions/{subscriptionId}/reactivate")]
+    public async Task<IActionResult> ReactivateSubscription(string subscriptionId)
+    {
+        var userId = User.FindFirst("userId")?.Value;
+        
+        var subscription = await _service.SubscriptionService.ReactivateSubscriptionAsync(
+            Guid.Parse(userId ?? ""),
+            subscriptionId);
+        
+        return Ok(subscription);
+    }
 }
