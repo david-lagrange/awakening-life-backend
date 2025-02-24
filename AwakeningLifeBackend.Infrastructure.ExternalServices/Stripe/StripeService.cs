@@ -305,4 +305,14 @@ public class StripeService : IStripeService
 
         return subscription;
     }
+
+    public async Task CancelSubscriptionImmediatelyAsync(string subscriptionId)
+    {
+        var subscriptionService = new SubscriptionService();
+        await subscriptionService.CancelAsync(subscriptionId, new SubscriptionCancelOptions
+        {
+            InvoiceNow = false,
+            Prorate = false
+        });
+    }
 }

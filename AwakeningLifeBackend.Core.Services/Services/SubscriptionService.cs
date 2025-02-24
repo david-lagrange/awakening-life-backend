@@ -430,6 +430,8 @@ internal sealed class SubscriptionService : ISubscriptionService
             throw new PaymentMethodNotFoundException(paymentMethodId ?? "(No payment method provided)");
         }
 
+        string? newSubscriptionId = null;
+
         // If downgrading and there's an existing subscription
         if (isDowngrade && !string.IsNullOrEmpty(currentSubscriptionId))
         {
@@ -451,7 +453,9 @@ internal sealed class SubscriptionService : ISubscriptionService
                 newPriceId, 
                 paymentMethodId,
                 isDowngrade,
-                currentSubscription.CurrentPeriodEnd); // Pass the current subscription's end date
+                currentSubscription.CurrentPeriodEnd);
+
+            newSubscriptionId = subscription.Id;
         }
         else
         {
@@ -467,11 +471,29 @@ internal sealed class SubscriptionService : ISubscriptionService
                 paymentMethodId,
                 isDowngrade,
                 null); // No trial end date for upgrades
+
+            newSubscriptionId = subscription.Id;
         }
-        
+
+        // Cancel all other subscriptions except the new one and current one
+        var allSubscriptions = await _stripeService.GetCustomerSubscriptionsAsync(customerId);
+        foreach (var subscription in allSubscriptions)
+        {
+            // Skip the new subscription and current subscription
+            if (subscription.Id == newSubscriptionId || subscription.Id == currentSubscriptionId)
+                continue;
+
+            // Skip subscriptions that are already canceled or incomplete
+            if (subscription.Status == "canceled" || subscription.Status == "incomplete" || subscription.Status == "incomplete_expired")
+                continue;
+
+            // Immediately cancel other subscriptions
+            await _stripeService.CancelSubscriptionImmediatelyAsync(subscription.Id);
+        }
+
         // Get the updated subscription details
-        var allSubscriptions = await GetCustomerSubscriptionsAsync(customerId);
-        return allSubscriptions.First();
+        var updatedSubscriptions = await GetCustomerSubscriptionsAsync(customerId);
+        return updatedSubscriptions.First();
     }
 
     public async Task<SubServiceSubscriptionDto> CancelSubscriptionAutoRenewalAsync(Guid userId, string subscriptionId)
@@ -487,12 +509,6 @@ internal sealed class SubscriptionService : ISubscriptionService
         {
             _logger.LogWarning("API_CLIENT_REDIRECT_BASE_URL environment variable is not set");
             throw new EnvironmentVariableNotSetException("API_CLIENT_REDIRECT_BASE_URL");
-        }
-
-        if (freePriceId == null)
-        {
-            _logger.LogWarning("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID environment variable is not set");
-            throw new EnvironmentVariableNotSetException("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID");
         }
 
         if (user == null)
@@ -511,16 +527,19 @@ internal sealed class SubscriptionService : ISubscriptionService
         }
 
         var updatedSubscription = await _stripeService.UpdateSubscriptionAutoRenewal(subscriptionId, false);
-        
-        // Check if user has an active free subscription
-        var hasActiveFreeSubscription = subscriptions.Any(s => 
-            s.Status == "active" && 
-            s.Items.Data.Any(i => i.Price.Id == freePriceId));
 
-        // If no active free subscription, create one
-        if (!hasActiveFreeSubscription)
+        if (freePriceId != null)
         {
-            await _stripeService.AddFreeSubscriptionAsync(customerId, freePriceId);
+            // Check if user has an active free subscription
+            var hasActiveFreeSubscription = subscriptions.Any(s =>
+                s.Status == "active" &&
+                s.Items.Data.Any(i => i.Price.Id == freePriceId));
+
+            // If no active free subscription, create one
+            if (!hasActiveFreeSubscription)
+            {
+                await _stripeService.AddFreeSubscriptionAsync(customerId, freePriceId);
+            }
         }
 
         // Record the cancellation
