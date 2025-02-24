@@ -567,17 +567,24 @@ internal sealed class SubscriptionService : ISubscriptionService
             await _stripeService.CancelSubscriptionImmediatelyAsync(sub.Id);
         }
 
-        // Record the cancellation
-        var subscriptionCancelation = new SubscriptionCancelation
-        {
-            SubscriptionCancelationId = Guid.NewGuid(),
-            SubscriptionId = subscriptionId,
-            CancelationDate = DateTime.UtcNow,
-        };
+        // Check if cancellation record already exists
+        var existingCancellation = await _repository.SubscriptionCancelation
+            .GetSubscriptionCancelationBySubscriptionIdAsync(subscriptionId, false);
 
-        _repository.SubscriptionCancelation.CreateSubscriptionCancelation(subscriptionCancelation);
-        await _repository.SaveAsync();
-        
+        if (existingCancellation == null)
+        {
+            // Only create new record if one doesn't exist
+            var subscriptionCancelation = new SubscriptionCancelation
+            {
+                SubscriptionCancelationId = Guid.NewGuid(),
+                SubscriptionId = subscriptionId,
+                CancelationDate = DateTime.UtcNow,
+            };
+
+            _repository.SubscriptionCancelation.CreateSubscriptionCancelation(subscriptionCancelation);
+            await _repository.SaveAsync();
+        }
+
         var subscriptionsLink = $"{baseUrl}/account/manage-subscription";
 
         // TODO: pass subscription active until date to email
