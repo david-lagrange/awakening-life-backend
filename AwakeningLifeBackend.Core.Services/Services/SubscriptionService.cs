@@ -275,7 +275,7 @@ internal sealed class SubscriptionService : ISubscriptionService
         foreach (var invoice in invoices)
         {
             var lineItem = invoice.Lines.Data.FirstOrDefault();
-            if (lineItem?.Price?.Id == freePriceId) continue; // Skip free subscription invoices
+            if (lineItem?.Price?.Id == freePriceId || invoice.AmountDue == 0) continue; // Skip free subscription invoices
 
             var paymentDetails = invoice.Charge?.PaymentMethodDetails?.Card;
             
