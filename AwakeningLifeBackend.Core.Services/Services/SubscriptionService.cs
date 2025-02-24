@@ -502,7 +502,7 @@ internal sealed class SubscriptionService : ISubscriptionService
         _repository.SubscriptionCancelation.CreateSubscriptionCancelation(subscriptionCancelation);
         await _repository.SaveAsync();
         
-        var subscriptionsLink = $"{baseUrl}/subscriptions";
+        var subscriptionsLink = $"{baseUrl}/account/manage-subscription";
 
         // TODO: pass subscription active until date to email
         await _emailService.SendSubscriptionCanceledEmailAsync(user.Email, subscriptionsLink);
