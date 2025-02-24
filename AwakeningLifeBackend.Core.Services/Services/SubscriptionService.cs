@@ -45,8 +45,6 @@ internal sealed class SubscriptionService : ISubscriptionService
     public async Task<SubServiceSubscriptionDto> UpdateUserSubscriptionAutoRenewalAsync(Guid userId, string subscriptionId, SubServiceSubscriptionRenewalUpdateDto stripeSubscriptionRenewalUpdateDto) =>
         await UpdateSubscriptionAutoRenewalAsync(await GetUserStripeCustomerId(userId), subscriptionId, stripeSubscriptionRenewalUpdateDto);
 
-    public async Task CancelSubscriptionAutoRenewalAsync(Guid userId) => await CancelAllSubscriptionsAutoRenewalAsync(userId, await GetUserStripeCustomerId(userId));
-
     public async Task<IEnumerable<SubServiceProductDto>> GetProductsAndPricesAsync()
     {
         var (products, prices) = await _stripeService.GetProductsAndPricesAsync();
@@ -315,56 +313,6 @@ internal sealed class SubscriptionService : ISubscriptionService
         return allSubscriptions.First(s => s.SubscriptionId == subscriptionId);
     }
 
-    public async Task CancelAllSubscriptionsAutoRenewalAsync(Guid userId, string customerId)
-    {
-        var subscriptions = await _stripeService.GetCustomerSubscriptionsAsync(customerId);
-        var activeSubscriptions = subscriptions.Where(s => s.Status == "active").ToList();
-        var baseUrl = Environment.GetEnvironmentVariable("API_CLIENT_REDIRECT_BASE_URL");
-
-        if (baseUrl == null)
-        {
-            _logger.LogWarning("API_CLIENT_REDIRECT_BASE_URL environment variable is not set");
-            throw new EnvironmentVariableNotSetException("API_CLIENT_REDIRECT_BASE_URL");
-        }
-
-        if (!activeSubscriptions.Any())
-        {
-            _logger.LogWarning($"No active subscriptions found for user with ID: {userId}");
-            return;
-        }
-
-        var user = await _userManager.FindByIdAsync(userId.ToString());
-
-        if (user == null)
-        {
-            _logger.LogWarning($"User with ID: {userId} was not found while attempting to cancel subscription auto-renewal");
-            throw new UserNotFoundException(userId);
-        }
-
-        //if (user.IsCanceledSubscription)
-        //{
-        //    _logger.LogWarning($"User with ID: {userId} has already canceled subscription auto-renewal");
-        //    throw new UserAlreadyCanceledSubscriptionException(userId);
-        //}
-
-        if (user.Email == null)
-        {
-            throw new UserHasNoEmailSetException(new Guid(user.Id));
-        }
-
-        foreach (var subscription in activeSubscriptions)
-        {
-            await _stripeService.UpdateSubscriptionAutoRenewal(subscription.Id, false);
-        }
-
-        //user.IsCanceledSubscription = true;
-        //await _userManager.UpdateAsync(user);
-
-        var subscriptionsLink = $"{baseUrl}/subscriptions";
-
-        await _emailService.SendSubscriptionCanceledEmailAsync(user.Email, subscriptionsLink);
-    }
-
     private async Task<string> GetUserStripeCustomerId(Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
@@ -466,7 +414,25 @@ internal sealed class SubscriptionService : ISubscriptionService
         var customerId = await GetUserStripeCustomerId(userId);
         var subscriptions = await _stripeService.GetCustomerSubscriptionsAsync(customerId);
         var subscription = subscriptions.FirstOrDefault(s => s.Id == subscriptionId);
-        
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        var baseUrl = Environment.GetEnvironmentVariable("API_CLIENT_REDIRECT_BASE_URL");
+
+        if (baseUrl == null)
+        {
+            _logger.LogWarning("API_CLIENT_REDIRECT_BASE_URL environment variable is not set");
+            throw new EnvironmentVariableNotSetException("API_CLIENT_REDIRECT_BASE_URL");
+        }
+
+        if (user == null)
+        {
+            throw new UserNotFoundException(userId);
+        }
+
+        if (user.Email == null)
+        {
+            throw new UserHasNoEmailSetException(new Guid(user.Id));
+        }
+
         if (subscription == null)
         {
             throw new SubscriptionNotFoundException(subscriptionId);
@@ -474,6 +440,22 @@ internal sealed class SubscriptionService : ISubscriptionService
 
         var updatedSubscription = await _stripeService.UpdateSubscriptionAutoRenewal(subscriptionId, false);
         
+        // Record the cancellation
+        var subscriptionCancelation = new SubscriptionCancelation
+        {
+            SubscriptionCancelationId = Guid.NewGuid(),
+            SubscriptionId = subscriptionId,
+            CancelationDate = DateTime.UtcNow,
+        };
+
+        _repository.SubscriptionCancelation.CreateSubscriptionCancelation(subscriptionCancelation);
+        await _repository.SaveAsync();
+        
+        var subscriptionsLink = $"{baseUrl}/subscriptions";
+
+        // TODO: pass subscription active until date to email
+        await _emailService.SendSubscriptionCanceledEmailAsync(user.Email, subscriptionsLink);
+
         var allSubscriptions = await GetCustomerSubscriptionsAsync(customerId);
         return allSubscriptions.First(s => s.SubscriptionId == subscriptionId);
     }

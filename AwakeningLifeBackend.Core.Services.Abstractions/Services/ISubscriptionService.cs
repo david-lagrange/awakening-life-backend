@@ -10,7 +10,6 @@ public interface ISubscriptionService
     Task<IEnumerable<SubServicePaymentMethodDto>> GetUserPaymentMethodsAsync(Guid userId);
     Task<IEnumerable<SubServiceInvoiceDto>> GetUserInvoicesAsync(Guid userId);
     Task<SubServiceSubscriptionDto> UpdateUserSubscriptionAutoRenewalAsync(Guid userId, string subscriptionId, SubServiceSubscriptionRenewalUpdateDto stripeSubscriptionRenewalUpdateDto);
-    Task CancelSubscriptionAutoRenewalAsync(Guid userId);
     Task<SubServiceSetupIntentDto> CreateSetupIntentAsync(Guid userId);
     Task UpdateDefaultPaymentMethodAsync(Guid userId, string paymentMethodId);
     Task DeletePaymentMethodAsync(Guid userId, string paymentMethodId);

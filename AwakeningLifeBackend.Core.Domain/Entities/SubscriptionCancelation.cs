@@ -1,6 +1,6 @@
 ﻿namespace AwakeningLifeBackend.Core.Domain.Entities;
 
-internal class SubscriptionCancelation
+public class SubscriptionCancelation
 {
     public Guid SubscriptionCancelationId { get; set; }
     public string? SubscriptionId { get; set; }

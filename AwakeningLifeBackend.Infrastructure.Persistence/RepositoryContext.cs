@@ -29,10 +29,12 @@ public class RepositoryContext : IdentityDbContext<User>
         modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
         modelBuilder.ApplyConfiguration(new SubscriptionFeatureConfiguration());
         modelBuilder.ApplyConfiguration(new SubscriptionRoleConfiguration());
+        modelBuilder.ApplyConfiguration(new SubscriptionCancelationConfiguration());
     }
 
     public DbSet<BaseEntity>? BaseEntities { get; set; }
     public DbSet<DependantEntity>? DependantEntities { get; set; }
     public DbSet<SubscriptionFeature>? SubscriptionFeatures { get; set; }
     public DbSet<SubscriptionRole>? SubscriptionRoles { get; set; }
+    public DbSet<SubscriptionCancelation>? SubscriptionCancelations { get; set; }
 }

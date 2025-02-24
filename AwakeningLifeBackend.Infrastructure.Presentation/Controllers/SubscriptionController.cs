@@ -73,16 +73,6 @@ public class SubscriptionController : ControllerBase
         return Ok(subscription);
     }
 
-    [HttpPut("customers/subscriptions/cancel")]
-    public async Task<IActionResult> CancelSubscription()
-    {
-        var userId = User.FindFirst("userId")?.Value;
-
-        await _service.SubscriptionService.CancelSubscriptionAutoRenewalAsync(Guid.Parse(userId ?? ""));
-
-        return Ok();
-    }
-
     [HttpPost("setup-intent")]
     public async Task<IActionResult> CreateSetupIntent()
     {
