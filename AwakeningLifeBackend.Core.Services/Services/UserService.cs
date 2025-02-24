@@ -256,7 +256,7 @@ internal sealed class UserService : IUserService
         if (!result.Succeeded)
         {
             _logger.LogError($"Password reset failed for user {user.Email}. Errors: {string.Join(", ", result.Errors.Select(error => error.Description))}");
-            throw new Exception($"Password reset failed. Errors: {string.Join(", ", result.Errors.Select(error => error.Description))}");
+            throw new PasswordResetBadRequestException(string.Join(", ", result.Errors.Select(error => error.Description)));
         }
     }
 
@@ -293,7 +293,7 @@ internal sealed class UserService : IUserService
         if (!result.Succeeded)
         {
             _logger.LogError($"Email confirmation failed for user {user.Email}. Errors: {string.Join(", ", result.Errors.Select(error => error.Description))}");
-            throw new Exception($"Email confirmation failed. Errors: {string.Join(", ", result.Errors.Select(error => error.Description))}");
+            throw new EmailConfirmationBadRequestException(string.Join(", ", result.Errors.Select(error => error.Description)));
         }
     }
 
