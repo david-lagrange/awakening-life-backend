@@ -183,6 +183,7 @@ public class StripeService : IStripeService
                     Price = priceId,
                 },
             },
+            CancelAtPeriodEnd = true  // This will turn off auto-renewal
         };
 
         var createdSub = await subscriptionService.CreateAsync(subscriptionOptions);
