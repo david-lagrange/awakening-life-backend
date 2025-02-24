@@ -247,7 +247,12 @@ public class StripeService : IStripeService
         return currentSubscription.Items.Data.First().Price.ProductId;
     }
 
-    public async Task<Subscription> CreateSubscriptionAsync(string customerId, string priceId, string paymentMethodId)
+    public async Task<Subscription> CreateSubscriptionAsync(
+        string customerId, 
+        string priceId, 
+        string paymentMethodId, 
+        bool isDowngrade,
+        DateTime? trialEnd = null)
     {
         var subscriptionService = new SubscriptionService();
         var subscriptionOptions = new SubscriptionCreateOptions
@@ -269,18 +274,28 @@ public class StripeService : IStripeService
             Expand = new List<string> { "latest_invoice.payment_intent" }
         };
 
-        var subscription = await subscriptionService.CreateAsync(subscriptionOptions);
-
-        // Check if payment needs additional action
-        if (subscription.LatestInvoice?.PaymentIntent?.Status == "requires_action")
+        // If downgrading and trial end date is provided, set it
+        if (isDowngrade && trialEnd.HasValue)
         {
-            throw new Exception("This payment requires additional action from the customer.");
+            subscriptionOptions.TrialEnd = trialEnd.Value;
         }
 
-        // Check if payment failed
-        if (subscription.LatestInvoice?.PaymentIntent?.Status == "requires_payment_method")
+        var subscription = await subscriptionService.CreateAsync(subscriptionOptions);
+
+        // Only check payment status for upgrades (non-downgrades)
+        if (!isDowngrade)
         {
-            throw new Exception("Payment failed. Please try again with a different payment method.");
+            // Check if payment needs additional action
+            if (subscription.LatestInvoice?.PaymentIntent?.Status == "requires_action")
+            {
+                throw new Exception("This payment requires additional action from the customer.");
+            }
+
+            // Check if payment failed
+            if (subscription.LatestInvoice?.PaymentIntent?.Status == "requires_payment_method")
+            {
+                throw new Exception("Payment failed. Please try again with a different payment method.");
+            }
         }
 
         return subscription;

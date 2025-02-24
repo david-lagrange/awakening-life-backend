@@ -13,7 +13,7 @@ public interface ISubscriptionService
     Task<SubServiceSetupIntentDto> CreateSetupIntentAsync(Guid userId);
     Task UpdateDefaultPaymentMethodAsync(Guid userId, string paymentMethodId);
     Task DeletePaymentMethodAsync(Guid userId, string paymentMethodId);
-    Task<SubServiceSubscriptionDto> ChangeSubscriptionAsync(Guid userId, string newPriceId, string paymentMethodId, string? currentSubscriptionId);
+    Task<SubServiceSubscriptionDto> ChangeSubscriptionAsync(Guid userId, string newPriceId, string paymentMethodId, string? currentSubscriptionId, bool isDowngrade);
     Task<SubServiceSubscriptionDto> CancelSubscriptionAutoRenewalAsync(Guid userId, string subscriptionId);
     Task<SubServiceSubscriptionDto> ReactivateSubscriptionAsync(Guid userId, string subscriptionId);
     // Admin

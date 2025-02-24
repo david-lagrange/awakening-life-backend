@@ -128,4 +128,5 @@ public record SubServiceSubscriptionChangeDto
     public string NewPriceId { get; init; } = string.Empty;
     public string PaymentMethodId { get; init; } = string.Empty;
     public string? CurrentSubscriptionId { get; init; }
+    public bool IsDowngrade { get; init; }
 }

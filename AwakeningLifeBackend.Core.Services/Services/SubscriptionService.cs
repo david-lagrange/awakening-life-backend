@@ -417,7 +417,7 @@ internal sealed class SubscriptionService : ISubscriptionService
         await _stripeService.DeletePaymentMethodAsync(paymentMethodId);
     }
 
-    public async Task<SubServiceSubscriptionDto> ChangeSubscriptionAsync(Guid userId, string newPriceId, string paymentMethodId, string? currentSubscriptionId)
+    public async Task<SubServiceSubscriptionDto> ChangeSubscriptionAsync(Guid userId, string newPriceId, string paymentMethodId, string? currentSubscriptionId, bool isDowngrade)
     {
         var customerId = await GetUserStripeCustomerId(userId);
         
@@ -430,18 +430,48 @@ internal sealed class SubscriptionService : ISubscriptionService
             throw new PaymentMethodNotFoundException(paymentMethodId);
         }
 
-        // If there's an existing subscription, cancel it at period end
-        if (!string.IsNullOrEmpty(currentSubscriptionId))
+        // If downgrading and there's an existing subscription
+        if (isDowngrade && !string.IsNullOrEmpty(currentSubscriptionId))
         {
-            await _stripeService.UpdateSubscriptionAutoRenewal(currentSubscriptionId, false);
-        }
+            // Get current subscription to find its end date
+            var subscriptions = await _stripeService.GetCustomerSubscriptionsAsync(customerId);
+            var currentSubscription = subscriptions.FirstOrDefault(s => s.Id == currentSubscriptionId);
+            
+            if (currentSubscription == null)
+            {
+                throw new SubscriptionNotFoundException(currentSubscriptionId);
+            }
 
-        // Create new subscription
-        var subscription = await _stripeService.CreateSubscriptionAsync(customerId, newPriceId, paymentMethodId);
+            // Cancel current subscription at period end
+            await _stripeService.UpdateSubscriptionAutoRenewal(currentSubscriptionId, false);
+
+            // Create new subscription that starts billing at the end of current subscription
+            var subscription = await _stripeService.CreateSubscriptionAsync(
+                customerId, 
+                newPriceId, 
+                paymentMethodId,
+                isDowngrade,
+                currentSubscription.CurrentPeriodEnd); // Pass the current subscription's end date
+        }
+        else
+        {
+            // Handle upgrades as before - immediate effect
+            if (!string.IsNullOrEmpty(currentSubscriptionId))
+            {
+                await _stripeService.UpdateSubscriptionAutoRenewal(currentSubscriptionId, false);
+            }
+
+            var subscription = await _stripeService.CreateSubscriptionAsync(
+                customerId, 
+                newPriceId, 
+                paymentMethodId,
+                isDowngrade,
+                null); // No trial end date for upgrades
+        }
         
         // Get the updated subscription details
-        var subscriptions = await GetCustomerSubscriptionsAsync(customerId);
-        return subscriptions.First(s => s.SubscriptionId == subscription.Id);
+        var allSubscriptions = await GetCustomerSubscriptionsAsync(customerId);
+        return allSubscriptions.First();
     }
 
     public async Task<SubServiceSubscriptionDto> CancelSubscriptionAutoRenewalAsync(Guid userId, string subscriptionId)

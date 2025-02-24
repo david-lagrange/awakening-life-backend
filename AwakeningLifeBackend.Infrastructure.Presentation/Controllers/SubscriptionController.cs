@@ -116,7 +116,8 @@ public class SubscriptionController : ControllerBase
                 Guid.Parse(userId ?? ""),
                 changeDto.NewPriceId,
                 changeDto.PaymentMethodId,
-                changeDto.CurrentSubscriptionId);
+                changeDto.CurrentSubscriptionId,
+                changeDto.IsDowngrade);
 
             return Ok(subscription);
         }
