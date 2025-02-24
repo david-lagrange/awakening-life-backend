@@ -248,20 +248,27 @@ internal sealed class SubscriptionService : ISubscriptionService
 
         var freePriceId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!;
 
-        if (string.IsNullOrEmpty(freePriceId))
+        if (!string.IsNullOrEmpty(freePriceId))
         {
-            _logger.LogError("Failed to get free price ID from environment variables.");
-            throw new EnvironmentVariableNotSetException("Failed to get free price ID from environment variables.");
+            subscriptionDtos = subscriptionDtos
+                .OrderByDescending(s =>
+                    s.Status == "active" &&
+                    s.Product?.PriceId != freePriceId &&
+                    s.CurrentPeriodEnd > DateTime.UtcNow)
+                .ThenByDescending(s => s.CurrentPeriodEnd)
+                .ThenByDescending(s => s.CurrentPeriodStart)
+                .ToList();
         }
-
-        subscriptionDtos = subscriptionDtos
-            .OrderByDescending(s => 
-                s.Status == "active" &&
-                s.Product?.PriceId != freePriceId && 
-                s.CurrentPeriodEnd > DateTime.UtcNow)
-            .ThenByDescending(s => s.CurrentPeriodEnd)
-            .ThenByDescending(s => s.CurrentPeriodStart)
-            .ToList();
+        else
+        {
+            subscriptionDtos = subscriptionDtos
+                .OrderByDescending(s =>
+                    s.Status == "active" &&
+                    s.CurrentPeriodEnd > DateTime.UtcNow)
+                .ThenByDescending(s => s.CurrentPeriodEnd)
+                .ThenByDescending(s => s.CurrentPeriodStart)
+                .ToList();
+        }
 
         return subscriptionDtos;
     }
