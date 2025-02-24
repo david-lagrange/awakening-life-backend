@@ -250,7 +250,7 @@ public class StripeService : IStripeService
     public async Task<Subscription> CreateSubscriptionAsync(
         string customerId, 
         string priceId, 
-        string paymentMethodId, 
+        string? paymentMethodId, 
         bool isDowngrade,
         DateTime? trialEnd = null)
     {
@@ -265,14 +265,19 @@ public class StripeService : IStripeService
                     Price = priceId,
                 },
             },
-            PaymentSettings = new SubscriptionPaymentSettingsOptions
-            {
-                PaymentMethodTypes = new List<string> { "card" },
-            },
-            DefaultPaymentMethod = paymentMethodId,
             CollectionMethod = "charge_automatically",
             Expand = new List<string> { "latest_invoice.payment_intent" }
         };
+
+        // Only set payment related options for upgrades or if payment method is provided
+        if (!isDowngrade || !string.IsNullOrEmpty(paymentMethodId))
+        {
+            subscriptionOptions.PaymentSettings = new SubscriptionPaymentSettingsOptions
+            {
+                PaymentMethodTypes = new List<string> { "card" },
+            };
+            subscriptionOptions.DefaultPaymentMethod = paymentMethodId;
+        }
 
         // If downgrading and trial end date is provided, set it
         if (isDowngrade && trialEnd.HasValue)

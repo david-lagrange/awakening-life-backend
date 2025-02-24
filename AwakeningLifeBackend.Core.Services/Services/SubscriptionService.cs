@@ -417,7 +417,7 @@ internal sealed class SubscriptionService : ISubscriptionService
         await _stripeService.DeletePaymentMethodAsync(paymentMethodId);
     }
 
-    public async Task<SubServiceSubscriptionDto> ChangeSubscriptionAsync(Guid userId, string newPriceId, string paymentMethodId, string? currentSubscriptionId, bool isDowngrade)
+    public async Task<SubServiceSubscriptionDto> ChangeSubscriptionAsync(Guid userId, string newPriceId, string? paymentMethodId, string? currentSubscriptionId, bool isDowngrade)
     {
         var customerId = await GetUserStripeCustomerId(userId);
         
@@ -425,9 +425,9 @@ internal sealed class SubscriptionService : ISubscriptionService
         var paymentMethods = await _stripeService.GetCustomerPaymentMethodsAsync(customerId);
         var paymentMethod = paymentMethods.FirstOrDefault(pm => pm.Id == paymentMethodId);
         
-        if (paymentMethod == null)
+        if (paymentMethod == null && !isDowngrade)
         {
-            throw new PaymentMethodNotFoundException(paymentMethodId);
+            throw new PaymentMethodNotFoundException(paymentMethodId ?? "(No payment method provided)");
         }
 
         // If downgrading and there's an existing subscription

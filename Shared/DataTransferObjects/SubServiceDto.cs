@@ -126,7 +126,7 @@ public record SubServiceDefaultPaymentMethodUpdateDto
 public record SubServiceSubscriptionChangeDto
 {
     public string NewPriceId { get; init; } = string.Empty;
-    public string PaymentMethodId { get; init; } = string.Empty;
-    public string? CurrentSubscriptionId { get; init; }
+    public string? PaymentMethodId { get; init; } = null;
+    public string? CurrentSubscriptionId { get; init; } = null;
     public bool IsDowngrade { get; init; }
 }
