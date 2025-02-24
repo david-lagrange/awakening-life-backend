@@ -67,29 +67,29 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         user.UserName = $"{user.UserName}_{Guid.NewGuid().ToString().ToLower().Substring(0, 5)}";
 
-        try
-        {
-            _logger.LogInformation($"Creating new Stripe customer for user {user.Email}");
-#pragma warning disable CS8604 // Possible null reference argument.
-            var stripeCustomer = await _stripeService.CreateCustomerAsync(user.Email);
-#pragma warning restore CS8604 // Possible null reference argument.
+//        try
+//        {
+//            _logger.LogInformation($"Creating new Stripe customer for user {user.Email}");
+//#pragma warning disable CS8604 // Possible null reference argument.
+//            var stripeCustomer = await _stripeService.CreateCustomerAsync(user.Email);
+//#pragma warning restore CS8604 // Possible null reference argument.
 
-            user.StripeCustomerId = stripeCustomer.Id;
+//            user.StripeCustomerId = stripeCustomer.Id;
 
-            var freeSubscriptionId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!;
+//            var freeSubscriptionId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!;
 
-            if (string.IsNullOrEmpty(freeSubscriptionId))
-            {
-                _logger.LogError("Failed to get free subscription price ID from environment variables.");
-                throw new EnvironmentVariableNotSetException("Failed to get free subscription price ID from environment variables.");
-            }
+//            if (string.IsNullOrEmpty(freeSubscriptionId))
+//            {
+//                _logger.LogError("Failed to get free subscription price ID from environment variables.");
+//                throw new EnvironmentVariableNotSetException("Failed to get free subscription price ID from environment variables.");
+//            }
 
-            await _stripeService.AddFreeSubscriptionAsync(user.StripeCustomerId, freeSubscriptionId);
-        }
-        catch (StripeException ex)
-        {
-            _logger.LogError($"Failed to create Stripe customer for user {user.Email}. Error: {ex.Message}");
-        }
+//            await _stripeService.AddFreeSubscriptionAsync(user.StripeCustomerId, freeSubscriptionId);
+//        }
+//        catch (StripeException ex)
+//        {
+//            _logger.LogError($"Failed to create Stripe customer for user {user.Email}. Error: {ex.Message}");
+//        }
 
         var result = await _userManager.CreateAsync(user, userForRegistration.Password!);
 
@@ -137,31 +137,31 @@ internal sealed class AuthenticationService : IAuthenticationService
         if (populateExp)
             _user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
-        try
-        {
-            if (string.IsNullOrEmpty(_user.StripeCustomerId))
-            {
-                _logger.LogInformation($"Creating new Stripe customer for user {_user.UserName}");
-#pragma warning disable CS8604 // Possible null reference argument.
-                var stripeCustomer = await _stripeService.CreateCustomerAsync(_user.Email);
-#pragma warning restore CS8604 // Possible null reference argument.
+//        try
+//        {
+//            if (string.IsNullOrEmpty(_user.StripeCustomerId))
+//            {
+//                _logger.LogInformation($"Creating new Stripe customer for user {_user.UserName}");
+//#pragma warning disable CS8604 // Possible null reference argument.
+//                var stripeCustomer = await _stripeService.CreateCustomerAsync(_user.Email);
+//#pragma warning restore CS8604 // Possible null reference argument.
 
-                _user.StripeCustomerId = stripeCustomer.Id;
+//                _user.StripeCustomerId = stripeCustomer.Id;
 
-                await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!);
-            }
+//                await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!);
+//            }
 
-            var subscriptions = await _stripeService.GetCustomerSubscriptionsAsync(_user.StripeCustomerId!);
+//            var subscriptions = await _stripeService.GetCustomerSubscriptionsAsync(_user.StripeCustomerId!);
 
-            if (subscriptions.Count() == 0)
-            {
-                await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!);
-            }
-        }
-        catch (StripeException ex)
-        {
-            _logger.LogError($"Failed to create Stripe customer for user {_user.Email}. Error: {ex.Message}");
-        }
+//            if (subscriptions.Count() == 0)
+//            {
+//                await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!);
+//            }
+//        }
+//        catch (StripeException ex)
+//        {
+//            _logger.LogError($"Failed to create Stripe customer for user {_user.Email}. Error: {ex.Message}");
+//        }
 
         await _userManager.UpdateAsync(_user);
 
