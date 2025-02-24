@@ -227,13 +227,13 @@ public class StripeService : IStripeService
     public async Task<string> GetSubscriptionProductId(string customerId)
     {
         var subscriptions = await GetCustomerSubscriptionsAsync(customerId);
-        var freeSubscriptionId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_SUBSCRIPTION_ID")!;
+        var freePriceId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!;
         
         // Use the same ordering logic as SubscriptionService
         var currentSubscription = subscriptions
             .OrderByDescending(s => 
                 s.Status == "active" && 
-                s.Items.Data.FirstOrDefault()?.Price?.ProductId != freeSubscriptionId && 
+                s.Items.Data.FirstOrDefault()?.Price?.Id != freePriceId && 
                 s.CurrentPeriodEnd > DateTime.UtcNow)
             .ThenByDescending(s => s.CurrentPeriodEnd)
             .ThenByDescending(s => s.CurrentPeriodStart)

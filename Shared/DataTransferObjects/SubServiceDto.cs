@@ -67,6 +67,7 @@ public record SubServiceSubscriptionDto
 public record SubServiceSubscriptionProductDto
 {
     public string? ProductId { get; init; }
+    public string? PriceId { get; init; }
     public string? Name { get; init; }
     public string? Description { get; init; }
     public long? LastPaidAmount { get; init; }

@@ -76,12 +76,12 @@ internal sealed class AuthenticationService : IAuthenticationService
 
             user.StripeCustomerId = stripeCustomer.Id;
 
-            var freeSubscriptionId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_SUBSCRIPTION_ID")!;
+            var freeSubscriptionId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!;
 
             if (string.IsNullOrEmpty(freeSubscriptionId))
             {
-                _logger.LogError("Failed to get free subscription ID from environment variables.");
-                throw new EnvironmentVariableNotSetException("Failed to get free subscription ID from environment variables.");
+                _logger.LogError("Failed to get free subscription price ID from environment variables.");
+                throw new EnvironmentVariableNotSetException("Failed to get free subscription price ID from environment variables.");
             }
 
             await _stripeService.AddFreeSubscriptionAsync(user.StripeCustomerId, freeSubscriptionId);
@@ -148,14 +148,14 @@ internal sealed class AuthenticationService : IAuthenticationService
 
                 _user.StripeCustomerId = stripeCustomer.Id;
 
-                await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_SUBSCRIPTION_ID")!);
+                await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!);
             }
 
             var subscriptions = await _stripeService.GetCustomerSubscriptionsAsync(_user.StripeCustomerId!);
 
             if (subscriptions.Count() == 0)
             {
-                await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_SUBSCRIPTION_ID")!);
+                await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!);
             }
         }
         catch (StripeException ex)

@@ -225,6 +225,7 @@ internal sealed class SubscriptionService : ISubscriptionService
                 Product = new SubServiceSubscriptionProductDto
                 {
                     ProductId = product.Id,
+                    PriceId = subscriptionItem.Plan.Id,
                     Name = product.Name,
                     Description = product.Description,
                     LastPaidAmount = subscriptionItem.Plan.Amount,
@@ -243,18 +244,18 @@ internal sealed class SubscriptionService : ISubscriptionService
             subscriptionDtos.Add(subscriptionDto);
         }
 
-        var freeSubscriptionId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_SUBSCRIPTION_ID")!;
+        var freePriceId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!;
 
-        if (string.IsNullOrEmpty(freeSubscriptionId))
+        if (string.IsNullOrEmpty(freePriceId))
         {
-            _logger.LogError("Failed to get free subscription ID from environment variables.");
-            throw new EnvironmentVariableNotSetException("Failed to get free subscription ID from environment variables.");
+            _logger.LogError("Failed to get free price ID from environment variables.");
+            throw new EnvironmentVariableNotSetException("Failed to get free price ID from environment variables.");
         }
 
         subscriptionDtos = subscriptionDtos
             .OrderByDescending(s => 
                 s.Status == "active" &&
-                s.Product?.ProductId != freeSubscriptionId && 
+                s.Product?.PriceId != freePriceId && 
                 s.CurrentPeriodEnd > DateTime.UtcNow)
             .ThenByDescending(s => s.CurrentPeriodEnd)
             .ThenByDescending(s => s.CurrentPeriodStart)
