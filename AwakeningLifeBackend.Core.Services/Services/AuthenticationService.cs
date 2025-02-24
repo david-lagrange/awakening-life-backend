@@ -70,7 +70,9 @@ internal sealed class AuthenticationService : IAuthenticationService
         try
         {
             _logger.LogInformation($"Creating new Stripe customer for user {user.Email}");
+#pragma warning disable CS8604 // Possible null reference argument.
             var stripeCustomer = await _stripeService.CreateCustomerAsync(user.Email);
+#pragma warning restore CS8604 // Possible null reference argument.
 
             user.StripeCustomerId = stripeCustomer.Id;
 
@@ -221,7 +223,7 @@ internal sealed class AuthenticationService : IAuthenticationService
     private async Task MapRolesForSubscription(string productId)
     {
         var subscriptionRoles = await _repository.SubscriptionRole.GetSubscriptionRolesAsync(false);
-        var currentUserRoles = await _userManager.GetRolesAsync(_user);
+        var currentUserRoles = await _userManager.GetRolesAsync(_user!);
 
         var currentSubscriptionRoles = subscriptionRoles
             .Where(sr => sr.ProductId == productId)
@@ -245,14 +247,14 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         if (rolesToRemove.Any())
         {
-            await _userManager.RemoveFromRolesAsync(_user, rolesToRemove);
-            _logger.LogInformation($"Removed subscription roles for user {_user.UserName}: {string.Join(", ", rolesToRemove)}");
+            await _userManager.RemoveFromRolesAsync(_user!, rolesToRemove);
+            _logger.LogInformation($"Removed subscription roles for user {_user!.UserName}: {string.Join(", ", rolesToRemove)}");
         }
 
         if (rolesToAdd.Any())
         {
-            await _userManager.AddToRolesAsync(_user, rolesToAdd!);
-            _logger.LogInformation($"Added subscription roles for user {_user.UserName}: {string.Join(", ", rolesToAdd)}");
+            await _userManager.AddToRolesAsync(_user!, rolesToAdd!);
+            _logger.LogInformation($"Added subscription roles for user {_user!.UserName}: {string.Join(", ", rolesToAdd)}");
         }
     }
 

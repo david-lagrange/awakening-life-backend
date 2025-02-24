@@ -25,28 +25,6 @@ public class StripeService : IStripeService
         return customer;
     }
 
-    private async Task CancelOlderSubscriptionsAsync(IEnumerable<Subscription> subscriptions)
-    {
-        var orderedSubscriptions = subscriptions
-            .OrderByDescending(s => s.CurrentPeriodStart)
-            .ToList();
-
-        var mostRecentActiveSubscription = orderedSubscriptions
-            .FirstOrDefault(s => s.Status == "active");
-
-        if (mostRecentActiveSubscription != null)
-        {
-            var olderSubscriptions = orderedSubscriptions
-                .Where(s => s.Status == "active" && 
-                           s.CurrentPeriodStart < mostRecentActiveSubscription.CurrentPeriodStart);
-
-            foreach (var subscription in olderSubscriptions)
-            {
-                await CancelSubscriptionImmediatelyAsync(subscription.Id);
-            }
-        }
-    }
-
     public async Task<IEnumerable<Subscription>> GetCustomerSubscriptionsAsync(string customerId)
     {
         var listOptions = new SubscriptionListOptions
@@ -61,12 +39,7 @@ public class StripeService : IStripeService
         var subscriptionService = new SubscriptionService();
         var subscriptions = await subscriptionService.ListAsync(listOptions);
         
-        // Cancel older active subscriptions
-        await CancelOlderSubscriptionsAsync(subscriptions.Data);
-        
-        // Fetch updated subscriptions after cancellations
-        var updatedSubscriptions = await subscriptionService.ListAsync(listOptions);
-        return updatedSubscriptions.Data;
+        return subscriptions.Data;
     }
 
     public async Task<(IEnumerable<Product> Products, IEnumerable<Price> Prices)> GetProductsAndPricesAsync()
@@ -115,17 +88,6 @@ public class StripeService : IStripeService
         
         var customers = await customerService.ListAsync(options);
         
-        // Cancel older active subscriptions for each customer
-        foreach (var customer in customers.Data)
-        {
-            if (customer.Subscriptions != null)
-            {
-                await CancelOlderSubscriptionsAsync(customer.Subscriptions.Data);
-            }
-        }
-        
-        // Fetch updated customer data after cancellations
-        customers = await customerService.ListAsync(options);
         return customers.Data;
     }
 
@@ -154,14 +116,6 @@ public class StripeService : IStripeService
             }
         };
         var customer = await customerService.GetAsync(customerId, options);
-        
-        // Cancel older active subscriptions
-        if (customer.Subscriptions != null)
-        {
-            await CancelOlderSubscriptionsAsync(customer.Subscriptions.Data);
-            // Refresh customer data after cancellations
-            customer = await customerService.GetAsync(customerId, options);
-        }
         
         return customer;
     }

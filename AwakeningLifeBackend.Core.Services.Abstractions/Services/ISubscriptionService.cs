@@ -15,6 +15,7 @@ public interface ISubscriptionService
     Task UpdateDefaultPaymentMethodAsync(Guid userId, string paymentMethodId);
     Task DeletePaymentMethodAsync(Guid userId, string paymentMethodId);
     Task<SubServiceSubscriptionDto> ChangeSubscriptionAsync(Guid userId, string newPriceId, string paymentMethodId, string? currentSubscriptionId);
+    Task<SubServiceSubscriptionDto> CancelSubscriptionAutoRenewalAsync(Guid userId, string subscriptionId);
 
     // Admin
     Task<IEnumerable<SubServiceProductDto>> GetProductsAndPricesAsync();

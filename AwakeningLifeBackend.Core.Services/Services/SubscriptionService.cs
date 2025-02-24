@@ -46,6 +46,7 @@ internal sealed class SubscriptionService : ISubscriptionService
         await UpdateSubscriptionAutoRenewalAsync(await GetUserStripeCustomerId(userId), subscriptionId, stripeSubscriptionRenewalUpdateDto);
 
     public async Task CancelSubscriptionAutoRenewalAsync(Guid userId) => await CancelAllSubscriptionsAutoRenewalAsync(userId, await GetUserStripeCustomerId(userId));
+
     public async Task<IEnumerable<SubServiceProductDto>> GetProductsAndPricesAsync()
     {
         var (products, prices) = await _stripeService.GetProductsAndPricesAsync();
@@ -458,6 +459,23 @@ internal sealed class SubscriptionService : ISubscriptionService
         // Get the updated subscription details
         var subscriptions = await GetCustomerSubscriptionsAsync(customerId);
         return subscriptions.First(s => s.SubscriptionId == subscription.Id);
+    }
+
+    public async Task<SubServiceSubscriptionDto> CancelSubscriptionAutoRenewalAsync(Guid userId, string subscriptionId)
+    {
+        var customerId = await GetUserStripeCustomerId(userId);
+        var subscriptions = await _stripeService.GetCustomerSubscriptionsAsync(customerId);
+        var subscription = subscriptions.FirstOrDefault(s => s.Id == subscriptionId);
+        
+        if (subscription == null)
+        {
+            throw new SubscriptionNotFoundException(subscriptionId);
+        }
+
+        var updatedSubscription = await _stripeService.UpdateSubscriptionAutoRenewal(subscriptionId, false);
+        
+        var allSubscriptions = await GetCustomerSubscriptionsAsync(customerId);
+        return allSubscriptions.First(s => s.SubscriptionId == subscriptionId);
     }
 
 }

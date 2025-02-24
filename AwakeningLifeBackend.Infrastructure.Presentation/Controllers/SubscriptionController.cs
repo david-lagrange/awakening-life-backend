@@ -136,4 +136,16 @@ public class SubscriptionController : ControllerBase
             return BadRequest(new { error = ex.Message });
         }
     }
+
+    [HttpPut("customers/subscriptions/{subscriptionId}/cancel")]
+    public async Task<IActionResult> CancelSubscriptionAutoRenewal(string subscriptionId)
+    {
+        var userId = User.FindFirst("userId")?.Value;
+        
+        var subscription = await _service.SubscriptionService.CancelSubscriptionAutoRenewalAsync(
+            Guid.Parse(userId ?? ""),
+            subscriptionId);
+        
+        return Ok(subscription);
+    }
 }
