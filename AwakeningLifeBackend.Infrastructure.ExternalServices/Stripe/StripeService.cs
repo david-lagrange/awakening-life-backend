@@ -69,13 +69,12 @@ public class StripeService : IStripeService
             Customer = customerId,
             Expand = new List<string> { 
                 "data.charge",
-                "data.lines"
+                "data.lines.data.price"
             }
         };
 
         var invoiceService = new InvoiceService();
         var invoices = await invoiceService.ListAsync(invoiceOptions);
-
         return invoices.Data;
     }
 

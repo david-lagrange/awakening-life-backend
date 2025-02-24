@@ -268,18 +268,20 @@ internal sealed class SubscriptionService : ISubscriptionService
     {
         var invoices = await _stripeService.GetCustomerInvoicesAsync(customerId);
         var invoiceDtos = new List<SubServiceInvoiceDto>();
+        var freePriceId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!;
 
         foreach (var invoice in invoices)
         {
+            var lineItem = invoice.Lines.Data.FirstOrDefault();
+            if (lineItem?.Price?.Id == freePriceId) continue; // Skip free subscription invoices
+
             var paymentDetails = invoice.Charge?.PaymentMethodDetails?.Card;
             
-            // Get the product name from the line item description
-            // Description format is typically "1 × Product Name (at $XX.XX / month)"
-            var description = invoice.Lines.Data.FirstOrDefault()?.Description;
+            var description = lineItem?.Description;
             var productName = description?.Split('×')
-                             .Skip(1)  // Skip the quantity part
+                             .Skip(1)
                              .FirstOrDefault()
-                             ?.Split('(')  // Split at the price part
+                             ?.Split('(')
                              .FirstOrDefault()
                              ?.Trim();
 
