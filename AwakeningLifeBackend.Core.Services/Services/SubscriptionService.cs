@@ -252,7 +252,9 @@ internal sealed class SubscriptionService : ISubscriptionService
         {
             subscriptionDtos = subscriptionDtos
                 .OrderByDescending(s =>
-                    (s.Status == "active" && s.Product?.PriceId != freePriceId && s.CurrentPeriodEnd > DateTime.UtcNow) ? 2 :
+                    (s.Status == "active" &&
+                    s.Product?.PriceId != freePriceId &&
+                    s.CurrentPeriodEnd > DateTime.UtcNow) ? 2 :
                     (s.Status == "trialing") ? 1 : 0)
                 .ThenByDescending(s => s.CurrentPeriodEnd)
                 .ThenByDescending(s => s.CurrentPeriodStart)
@@ -262,7 +264,8 @@ internal sealed class SubscriptionService : ISubscriptionService
         {
             subscriptionDtos = subscriptionDtos
                 .OrderByDescending(s =>
-                    (s.Status == "active" && s.CurrentPeriodEnd > DateTime.UtcNow) ? 2 :
+                    (s.Status == "active" &&
+                    s.CurrentPeriodEnd > DateTime.UtcNow) ? 2 :
                     (s.Status == "trialing") ? 1 : 0)
                 .ThenByDescending(s => s.CurrentPeriodEnd)
                 .ThenByDescending(s => s.CurrentPeriodStart)
