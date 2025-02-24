@@ -210,6 +210,10 @@ internal sealed class SubscriptionService : ISubscriptionService
             var subscriptionRoles = await _repository.SubscriptionRole
                 .GetSubscriptionRolesForProductAsync(product.Id, false);
 
+            // Check if subscription has been canceled
+            var cancelation = await _repository.SubscriptionCancelation
+                .GetSubscriptionCancelationBySubscriptionIdAsync(subscription.Id, false);
+
             var subscriptionDto = new SubServiceSubscriptionDto
             {
                 SubscriptionId = subscription.Id,
@@ -217,6 +221,7 @@ internal sealed class SubscriptionService : ISubscriptionService
                 CurrentPeriodStart = subscription.CurrentPeriodStart,
                 CurrentPeriodEnd = subscription.CurrentPeriodEnd,
                 AutoRenew = subscription.CancelAtPeriodEnd == false,
+                IsCanceled = cancelation != null,  // Set based on cancelation record
                 Product = new SubServiceSubscriptionProductDto
                 {
                     ProductId = product.Id,

@@ -60,6 +60,7 @@ public record SubServiceSubscriptionDto
     public DateTime CurrentPeriodStart { get; init; }
     public DateTime CurrentPeriodEnd { get; init; }
     public bool AutoRenew { get; init; }
+    public bool IsCanceled { get; init; }
     public SubServiceSubscriptionProductDto? Product { get; init; }
 }
 
