@@ -207,23 +207,32 @@ internal sealed class SubscriptionService : ISubscriptionService
             var currentDefaultPrice = prices
                 .FirstOrDefault(p => p.Id == product.DefaultPriceId);
 
+            // Get subscription roles for the product
+            var subscriptionRoles = await _repository.SubscriptionRole
+                .GetSubscriptionRolesForProductAsync(product.Id, false);
+
             var subscriptionDto = new SubServiceSubscriptionDto
             {
                 SubscriptionId = subscription.Id,
                 Status = subscription.Status,
                 CurrentPeriodStart = subscription.CurrentPeriodStart,
                 CurrentPeriodEnd = subscription.CurrentPeriodEnd,
-                AutoRenew = subscription.CancelAtPeriodEnd == false, // If CancelAtPeriodEnd is false, auto-renewal is on
+                AutoRenew = subscription.CancelAtPeriodEnd == false,
                 Product = new SubServiceSubscriptionProductDto
                 {
                     ProductId = product.Id,
                     Name = product.Name,
                     Description = product.Description,
-                    LastPaidAmount = subscriptionItem.Plan.Amount, // Amount actually paid for this subscription
-                    CurrentDefaultPrice = currentDefaultPrice?.UnitAmount, // Current listed price for new subscriptions
+                    LastPaidAmount = subscriptionItem.Plan.Amount,
+                    CurrentDefaultPrice = currentDefaultPrice?.UnitAmount,
                     Currency = subscriptionItem.Plan.Currency,
                     RecurringInterval = subscriptionItem.Plan.Interval.ToString(),
-                    RecurringIntervalCount = (int?)subscriptionItem.Plan.IntervalCount
+                    RecurringIntervalCount = (int?)subscriptionItem.Plan.IntervalCount,
+                    Roles = subscriptionRoles.Select(sr => new SubscriptionRoleDto
+                    {
+                        RoleId = sr.RoleId,
+                        RoleName = sr.Role?.Name
+                    })
                 }
             };
 

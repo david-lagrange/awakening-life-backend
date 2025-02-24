@@ -73,6 +73,13 @@ public record SubServiceSubscriptionProductDto
     public string? Currency { get; init; }
     public string? RecurringInterval { get; init; }
     public int? RecurringIntervalCount { get; init; }
+    public IEnumerable<SubscriptionRoleDto>? Roles { get; init; }
+}
+
+public record SubscriptionRoleDto
+{
+    public string? RoleId { get; init; }
+    public string? RoleName { get; init; }
 }
 
 public class SubServiceInvoiceDto
