@@ -67,6 +67,8 @@ internal sealed class SubscriptionService : ISubscriptionService
             }
         }
 
+        productDtos = productDtos.OrderBy(pd => pd.Prices?.First().UnitAmount);
+
         return productDtos;
     }
 
