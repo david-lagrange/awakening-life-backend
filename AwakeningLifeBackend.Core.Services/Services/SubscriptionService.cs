@@ -436,11 +436,18 @@ internal sealed class SubscriptionService : ISubscriptionService
         var subscription = subscriptions.FirstOrDefault(s => s.Id == subscriptionId);
         var user = await _userManager.FindByIdAsync(userId.ToString());
         var baseUrl = Environment.GetEnvironmentVariable("API_CLIENT_REDIRECT_BASE_URL");
+        var freePriceId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID");
 
         if (baseUrl == null)
         {
             _logger.LogWarning("API_CLIENT_REDIRECT_BASE_URL environment variable is not set");
             throw new EnvironmentVariableNotSetException("API_CLIENT_REDIRECT_BASE_URL");
+        }
+
+        if (freePriceId == null)
+        {
+            _logger.LogWarning("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID environment variable is not set");
+            throw new EnvironmentVariableNotSetException("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID");
         }
 
         if (user == null)
@@ -460,6 +467,17 @@ internal sealed class SubscriptionService : ISubscriptionService
 
         var updatedSubscription = await _stripeService.UpdateSubscriptionAutoRenewal(subscriptionId, false);
         
+        // Check if user has an active free subscription
+        var hasActiveFreeSubscription = subscriptions.Any(s => 
+            s.Status == "active" && 
+            s.Items.Data.Any(i => i.Price.Id == freePriceId));
+
+        // If no active free subscription, create one
+        if (!hasActiveFreeSubscription)
+        {
+            await _stripeService.AddFreeSubscriptionAsync(customerId, freePriceId);
+        }
+
         // Record the cancellation
         var subscriptionCancelation = new SubscriptionCancelation
         {
