@@ -94,6 +94,7 @@ public class SubServiceInvoiceDto
     public string? InvoicePdfUrl { get; set; }
     public string? PaymentMethodBrand { get; set; }
     public string? PaymentMethodLast4 { get; set; }
+    public string? ProductName { get; set; }
 }
 
 public class SubServicePaymentMethodDto

@@ -1,4 +1,5 @@
 ﻿using Stripe;
+using System.Text.Json;
 
 namespace AwakeningLifeBackend.Infrastructure.ExternalServices;
 
@@ -66,11 +67,15 @@ public class StripeService : IStripeService
         var invoiceOptions = new InvoiceListOptions
         {
             Customer = customerId,
-            Expand = new List<string> { "data.charge" }
+            Expand = new List<string> { 
+                "data.charge",
+                "data.lines"
+            }
         };
 
         var invoiceService = new InvoiceService();
         var invoices = await invoiceService.ListAsync(invoiceOptions);
+
         return invoices.Data;
     }
 
@@ -162,12 +167,6 @@ public class StripeService : IStripeService
         };
         
         return await subscriptionService.UpdateAsync(subscriptionId, options);
-    }
-
-    public async Task<Subscription> CancelSubscriptionImmediatelyAsync(string subscriptionId)
-    {
-        var subscriptionService = new SubscriptionService();
-        return await subscriptionService.CancelAsync(subscriptionId, new SubscriptionCancelOptions());
     }
 
     public async Task<Subscription> AddFreeSubscriptionAsync(string customerId, string priceId)

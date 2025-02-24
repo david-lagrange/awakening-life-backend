@@ -273,6 +273,16 @@ internal sealed class SubscriptionService : ISubscriptionService
         {
             var paymentDetails = invoice.Charge?.PaymentMethodDetails?.Card;
             
+            // Get the product name from the line item description
+            // Description format is typically "1 × Product Name (at $XX.XX / month)"
+            var description = invoice.Lines.Data.FirstOrDefault()?.Description;
+            var productName = description?.Split('×')
+                             .Skip(1)  // Skip the quantity part
+                             .FirstOrDefault()
+                             ?.Split('(')  // Split at the price part
+                             .FirstOrDefault()
+                             ?.Trim();
+
             var invoiceDto = new SubServiceInvoiceDto
             {
                 InvoiceId = invoice.Id,
@@ -282,7 +292,8 @@ internal sealed class SubscriptionService : ISubscriptionService
                 Status = invoice.Status,
                 InvoicePdfUrl = invoice.InvoicePdf,
                 PaymentMethodBrand = paymentDetails?.Brand,
-                PaymentMethodLast4 = paymentDetails?.Last4
+                PaymentMethodLast4 = paymentDetails?.Last4,
+                ProductName = productName
             };
 
             invoiceDtos.Add(invoiceDto);
