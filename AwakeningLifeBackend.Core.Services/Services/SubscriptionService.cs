@@ -535,18 +535,21 @@ internal sealed class SubscriptionService : ISubscriptionService
 
         var updatedSubscription = await _stripeService.UpdateSubscriptionAutoRenewal(subscriptionId, false);
 
-        if (freePriceId != null)
+        // Actually cancel all subscriptions that are not a free one or the one being canceled
+        var allSubscriptions = await _stripeService.GetCustomerSubscriptionsAsync(customerId);
+        foreach (var sub in allSubscriptions)
         {
-            // Check if user has an active free subscription
-            var hasActiveFreeSubscription = subscriptions.Any(s =>
-                s.Status == "active" &&
-                s.Items.Data.Any(i => i.Price.Id == freePriceId));
+            // Skip the subscription being canceled and free subscriptions
+            if (sub.Id == subscriptionId || 
+                (freePriceId != null && sub.Items.Data.Any(i => i.Price.Id == freePriceId)))
+                continue;
 
-            // If no active free subscription, create one
-            if (!hasActiveFreeSubscription)
-            {
-                await _stripeService.AddFreeSubscriptionAsync(customerId, freePriceId);
-            }
+            // Skip subscriptions that are already canceled or incomplete
+            if (sub.Status == "canceled" || sub.Status == "incomplete" || sub.Status == "incomplete_expired")
+                continue;
+
+            // Immediately cancel other subscriptions
+            await _stripeService.CancelSubscriptionImmediatelyAsync(sub.Id);
         }
 
         // Record the cancellation
@@ -565,8 +568,8 @@ internal sealed class SubscriptionService : ISubscriptionService
         // TODO: pass subscription active until date to email
         await _emailService.SendSubscriptionCanceledEmailAsync(user.Email, subscriptionsLink);
 
-        var allSubscriptions = await GetCustomerSubscriptionsAsync(customerId);
-        return allSubscriptions.First(s => s.SubscriptionId == subscriptionId);
+        var allFinalSubscriptions = await GetCustomerSubscriptionsAsync(customerId);
+        return allFinalSubscriptions.First(s => s.SubscriptionId == subscriptionId);
     }
 
     public async Task<SubServiceSubscriptionDto> ReactivateSubscriptionAsync(Guid userId, string subscriptionId)
