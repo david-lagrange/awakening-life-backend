@@ -67,6 +67,7 @@ public class StripeService : IStripeService
         var invoiceOptions = new InvoiceListOptions
         {
             Customer = customerId,
+            Status = null, // This will return all invoices regardless of status (paid, uncollectible, void, etc.)
             Expand = new List<string> { 
                 "data.charge",
                 "data.lines.data.price"
