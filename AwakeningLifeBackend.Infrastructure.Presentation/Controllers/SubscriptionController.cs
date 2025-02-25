@@ -105,29 +105,6 @@ public class SubscriptionController : ControllerBase
         return Ok();
     }
 
-    [HttpPost("customers/subscriptions/change")]
-    public async Task<IActionResult> ChangeSubscription([FromBody] SubServiceSubscriptionChangeDto changeDto)
-    {
-        try
-        {
-            var userId = User.FindFirst("userId")?.Value;
-            
-            var subscription = await _service.SubscriptionService.ChangeSubscriptionAsync(
-                Guid.Parse(userId ?? ""),
-                changeDto.NewPriceId,
-                changeDto.PaymentMethodId,
-                changeDto.CurrentSubscriptionId,
-                changeDto.IsDowngrade);
-
-            return Ok(subscription);
-        }
-        catch (Exception ex)
-        {
-            // Log the error
-            return BadRequest(new { error = ex.Message });
-        }
-    }
-
     [HttpPut("customers/subscriptions/{subscriptionId}/cancel")]
     public async Task<IActionResult> CancelSubscriptionAutoRenewal(string subscriptionId)
     {
@@ -150,5 +127,47 @@ public class SubscriptionController : ControllerBase
             subscriptionId);
         
         return Ok(subscription);
+    }
+
+    [HttpPost("customers/subscriptions/downgrade")]
+    public async Task<IActionResult> DowngradeSubscription([FromBody] SubServiceSubscriptionDowngradeDto downgradeDto)
+    {
+        try
+        {
+            var userId = User.FindFirst("userId")?.Value;
+
+            var subscription = await _service.SubscriptionService.DowngradeSubscriptionAsync(
+                Guid.Parse(userId ?? ""),
+                downgradeDto.NewPriceId,
+                downgradeDto.CurrentSubscriptionId);
+
+            return Ok(subscription);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("customers/subscriptions/upgrade")]
+    public async Task<IActionResult> UpgradeSubscription(
+        [FromBody] SubServiceSubscriptionUpgradeDto upgradeDto)
+    {
+        try
+        {
+            var userId = User.FindFirst("userId")?.Value;
+            
+            var subscription = await _service.SubscriptionService.UpgradeSubscriptionAsync(
+                Guid.Parse(userId ?? ""),
+                upgradeDto.CurrentSubscriptionId,
+                upgradeDto.NewPriceId,
+                upgradeDto.PaymentMethodId);
+
+            return Ok(subscription);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 }

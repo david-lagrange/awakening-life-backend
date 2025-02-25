@@ -426,78 +426,49 @@ internal sealed class SubscriptionService : ISubscriptionService
         await _stripeService.DeletePaymentMethodAsync(paymentMethodId);
     }
 
-    public async Task<SubServiceSubscriptionDto> ChangeSubscriptionAsync(Guid userId, string newPriceId, string? paymentMethodId, string? currentSubscriptionId, bool isDowngrade)
+    public async Task<SubServiceSubscriptionDto> DowngradeSubscriptionAsync(Guid userId, string newPriceId, string? currentSubscriptionId)
     {
         var customerId = await GetUserStripeCustomerId(userId);
+
+        if (string.IsNullOrEmpty(currentSubscriptionId))
+        {
+            throw new SubscriptionNotFoundException("Current subscription ID is required for downgrade");
+        }
+
+        // Get current subscription to find its end date
+        var subscriptions = await _stripeService.GetCustomerSubscriptionsAsync(customerId);
+        var currentSubscription = subscriptions.FirstOrDefault(s => s.Id == currentSubscriptionId);
         
-        // Verify the payment method belongs to the customer
-        var paymentMethods = await _stripeService.GetCustomerPaymentMethodsAsync(customerId);
-        var paymentMethod = paymentMethods.FirstOrDefault(pm => pm.Id == paymentMethodId);
-        
-        if (paymentMethod == null && !isDowngrade)
+        if (currentSubscription == null)
         {
-            throw new PaymentMethodNotFoundException(paymentMethodId ?? "(No payment method provided)");
+            throw new SubscriptionNotFoundException(currentSubscriptionId);
         }
 
-        string? newSubscriptionId = null;
+        // Cancel current subscription at period end
+        await _stripeService.UpdateSubscriptionAutoRenewal(currentSubscriptionId, false);
 
-        // If downgrading and there's an existing subscription
-        if (isDowngrade && !string.IsNullOrEmpty(currentSubscriptionId))
-        {
-            // Get current subscription to find its end date
-            var subscriptions = await _stripeService.GetCustomerSubscriptionsAsync(customerId);
-            var currentSubscription = subscriptions.FirstOrDefault(s => s.Id == currentSubscriptionId);
-            
-            if (currentSubscription == null)
-            {
-                throw new SubscriptionNotFoundException(currentSubscriptionId);
-            }
-
-            // Cancel current subscription at period end
-            await _stripeService.UpdateSubscriptionAutoRenewal(currentSubscriptionId, false);
-
-            // Create new subscription that starts billing at the end of current subscription
-            var subscription = await _stripeService.CreateSubscriptionAsync(
-                customerId, 
-                newPriceId, 
-                paymentMethodId,
-                isDowngrade,
-                currentSubscription.CurrentPeriodEnd);
-
-            newSubscriptionId = subscription.Id;
-        }
-        else
-        {
-            // Handle upgrades as before - immediate effect
-            if (!string.IsNullOrEmpty(currentSubscriptionId))
-            {
-                await _stripeService.UpdateSubscriptionAutoRenewal(currentSubscriptionId, false);
-            }
-
-            var subscription = await _stripeService.CreateSubscriptionAsync(
-                customerId, 
-                newPriceId, 
-                paymentMethodId,
-                isDowngrade,
-                null); // No trial end date for upgrades
-
-            newSubscriptionId = subscription.Id;
-        }
+        // Create new subscription that starts billing at the end of current subscription
+        var subscription = await _stripeService.CreateSubscriptionAsync(
+            customerId, 
+            newPriceId, 
+            null, // No payment method needed for downgrade
+            true, // isDowngrade
+            currentSubscription.CurrentPeriodEnd);
 
         // Cancel all other subscriptions except the new one and current one
         var allSubscriptions = await _stripeService.GetCustomerSubscriptionsAsync(customerId);
-        foreach (var subscription in allSubscriptions)
+        foreach (var sub in allSubscriptions)
         {
             // Skip the new subscription and current subscription
-            if (subscription.Id == newSubscriptionId || subscription.Id == currentSubscriptionId)
+            if (sub.Id == subscription.Id || sub.Id == currentSubscriptionId)
                 continue;
 
             // Skip subscriptions that are already canceled or incomplete
-            if (subscription.Status == "canceled" || subscription.Status == "incomplete" || subscription.Status == "incomplete_expired")
+            if (sub.Status == "canceled" || sub.Status == "incomplete" || sub.Status == "incomplete_expired")
                 continue;
 
             // Immediately cancel other subscriptions
-            await _stripeService.CancelSubscriptionImmediatelyAsync(subscription.Id);
+            await _stripeService.CancelSubscriptionImmediatelyAsync(sub.Id);
         }
 
         // Get the updated subscription details
@@ -631,6 +602,51 @@ internal sealed class SubscriptionService : ISubscriptionService
 
         var allSubscriptions = await GetCustomerSubscriptionsAsync(customerId);
         return allSubscriptions.First(s => s.SubscriptionId == subscriptionId);
+    }
+
+    public async Task<SubServiceSubscriptionDto> UpgradeSubscriptionAsync(
+        Guid userId, 
+        string? currentSubscriptionId,
+        string newPriceId,
+        string? paymentMethodId)
+    {
+        var customerId = await GetUserStripeCustomerId(userId);
+        
+        // Verify the payment method belongs to the customer
+        var paymentMethods = await _stripeService.GetCustomerPaymentMethodsAsync(customerId);
+        var paymentMethod = paymentMethods.FirstOrDefault(pm => pm.Id == paymentMethodId);
+        
+        if (paymentMethod == null)
+        {
+            throw new PaymentMethodNotFoundException(paymentMethodId ?? "(No payment method provided)");
+        }
+
+        // Update or create subscription
+        var updatedSubscription = await _stripeService.UpdateSubscriptionPriceAsync(
+            currentSubscriptionId,
+            newPriceId,
+            customerId,
+            paymentMethodId);
+
+        // Cancel all other subscriptions
+        var allSubscriptions = await _stripeService.GetCustomerSubscriptionsAsync(customerId);
+        foreach (var subscription in allSubscriptions)
+        {
+            // Skip the subscription being upgraded/created
+            if (subscription.Id == updatedSubscription.Id)
+                continue;
+
+            // Skip subscriptions that are already canceled or incomplete
+            if (subscription.Status == "canceled" || subscription.Status == "incomplete" || subscription.Status == "incomplete_expired")
+                continue;
+
+            // Immediately cancel other subscriptions
+            await _stripeService.CancelSubscriptionImmediatelyAsync(subscription.Id);
+        }
+
+        // Get the updated subscription details
+        var updatedSubscriptions = await GetCustomerSubscriptionsAsync(customerId);
+        return updatedSubscriptions.First(s => s.SubscriptionId == updatedSubscription.Id);
     }
 
 }

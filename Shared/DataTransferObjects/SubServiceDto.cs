@@ -52,7 +52,11 @@ public record SubServiceCustomerDto
     public int SuccessfulPayments { get; init; }
     public DateTime? LastPaymentDate { get; init; }
 }
-
+public class SubServiceSubscriptionDowngradeDto
+{
+    public string NewPriceId { get; set; } = null!;
+    public string CurrentSubscriptionId { get; set; } = null!;
+} 
 public record SubServiceSubscriptionDto
 {
     public string? SubscriptionId { get; init; }
@@ -129,4 +133,11 @@ public record SubServiceSubscriptionChangeDto
     public string? PaymentMethodId { get; init; } = null;
     public string? CurrentSubscriptionId { get; init; } = null;
     public bool IsDowngrade { get; init; }
+}
+
+public class SubServiceSubscriptionUpgradeDto
+{
+    public string? CurrentSubscriptionId { get; set; }
+    public string NewPriceId { get; set; } = null!;
+    public string? PaymentMethodId { get; set; }
 }

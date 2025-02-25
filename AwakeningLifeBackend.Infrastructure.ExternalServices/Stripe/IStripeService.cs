@@ -21,4 +21,9 @@ public interface IStripeService
     Task<string> GetSubscriptionProductId(string customerId);
     Task<Subscription> CreateSubscriptionAsync(string customerId, string priceId, string? paymentMethodId, bool isDowngrade, DateTime? trialEnd = null);
     Task CancelSubscriptionImmediatelyAsync(string subscriptionId);
+    Task<Subscription> UpdateSubscriptionPriceAsync(
+        string? subscriptionId,
+        string newPriceId,
+        string customerId,
+        string? paymentMethodId);
 }

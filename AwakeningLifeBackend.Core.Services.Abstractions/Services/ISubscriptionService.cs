@@ -13,9 +13,15 @@ public interface ISubscriptionService
     Task<SubServiceSetupIntentDto> CreateSetupIntentAsync(Guid userId);
     Task UpdateDefaultPaymentMethodAsync(Guid userId, string paymentMethodId);
     Task DeletePaymentMethodAsync(Guid userId, string paymentMethodId);
-    Task<SubServiceSubscriptionDto> ChangeSubscriptionAsync(Guid userId, string newPriceId, string paymentMethodId, string? currentSubscriptionId, bool isDowngrade);
+    Task<SubServiceSubscriptionDto> DowngradeSubscriptionAsync(Guid userId, string newPriceId, string? currentSubscriptionId);
+    Task<SubServiceSubscriptionDto> UpgradeSubscriptionAsync(
+        Guid userId,
+        string? currentSubscriptionId,
+        string newPriceId,
+        string? paymentMethodId);
     Task<SubServiceSubscriptionDto> CancelSubscriptionAutoRenewalAsync(Guid userId, string subscriptionId);
     Task<SubServiceSubscriptionDto> ReactivateSubscriptionAsync(Guid userId, string subscriptionId);
+    
     // Admin
     Task<IEnumerable<SubServiceProductDto>> GetProductsAndPricesAsync();
     Task<IEnumerable<SubServiceCustomerDto>> GetCustomersAsync();

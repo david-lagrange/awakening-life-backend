@@ -315,4 +315,56 @@ public class StripeService : IStripeService
             Prorate = false
         });
     }
+
+    public async Task<Subscription> UpdateSubscriptionPriceAsync(
+        string? subscriptionId,
+        string newPriceId,
+        string customerId,
+        string? paymentMethodId)
+    {
+        var subscriptionService = new SubscriptionService();
+
+        // If no existing subscription, create a new one
+        if (string.IsNullOrEmpty(subscriptionId))
+        {
+            var createOptions = new SubscriptionCreateOptions
+            {
+                Customer = customerId,
+                Items = new List<SubscriptionItemOptions>
+                {
+                    new SubscriptionItemOptions
+                    {
+                        Price = newPriceId,
+                    }
+                },
+                DefaultPaymentMethod = paymentMethodId
+            };
+
+            return await subscriptionService.CreateAsync(createOptions);
+        }
+
+        // Otherwise update the existing subscription
+        var updateOptions = new SubscriptionUpdateOptions
+        {
+            Items = new List<SubscriptionItemOptions>
+            {
+                new SubscriptionItemOptions
+                {
+                    Id = await GetSubscriptionItemId(subscriptionId),
+                    Price = newPriceId,
+                }
+            },
+            ProrationBehavior = "always_invoice", // This creates an immediate invoice for the price difference
+            DefaultPaymentMethod = paymentMethodId
+        };
+
+        return await subscriptionService.UpdateAsync(subscriptionId, updateOptions);
+    }
+
+    private async Task<string> GetSubscriptionItemId(string subscriptionId)
+    {
+        var subscriptionService = new SubscriptionService();
+        var subscription = await subscriptionService.GetAsync(subscriptionId);
+        return subscription.Items.Data[0].Id;
+    }
 }
