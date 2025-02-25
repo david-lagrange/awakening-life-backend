@@ -222,8 +222,16 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         var roles = await _userManager.GetRolesAsync(_user);
 
-        foreach (var role in roles)
-            claims.Add(new Claim("roles", role));
+        if (!roles.Any())
+        {
+            // Add an empty roles claim if the user has no roles
+            claims.Add(new Claim("roles", ""));
+        }
+        else
+        {
+            foreach (var role in roles)
+                claims.Add(new Claim("roles", role));
+        }
 
         return claims;
     }
