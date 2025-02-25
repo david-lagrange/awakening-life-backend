@@ -7,6 +7,7 @@ using AutoMapper;
 using LoggingService;
 using Microsoft.AspNetCore.Identity;
 using Shared.DataTransferObjects;
+using System.Text.Json;
 
 
 namespace AwakeningLifeBackend.Core.Services.Services;
@@ -280,21 +281,31 @@ internal sealed class SubscriptionService : ISubscriptionService
         var invoices = await _stripeService.GetCustomerInvoicesAsync(customerId);
         var invoiceDtos = new List<SubServiceInvoiceDto>();
         var freePriceId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!;
+        var (products, _) = await _stripeService.GetProductsAndPricesAsync();
 
         foreach (var invoice in invoices)
         {
+            // serialize invoice.Lines.Data to json with indent
+            var invoiceJson = JsonSerializer.Serialize(invoice, new JsonSerializerOptions { WriteIndented = true });
+            _logger.LogInformation($"Invoice lines: {invoiceJson}");
             var lineItem = invoice.Lines.Data.FirstOrDefault();
             if (lineItem?.Price?.Id == freePriceId || invoice.AmountDue == 0) continue; // Skip free subscription invoices
 
             var paymentDetails = invoice.Charge?.PaymentMethodDetails?.Card;
             
-            var description = lineItem?.Description;
-            var productName = description?.Split('×')
-                             .Skip(1)
-                             .FirstOrDefault()
-                             ?.Split('(')
-                             .FirstOrDefault()
-                             ?.Trim();
+            string? productName = null;
+            if (invoice.Lines.Data.Any(l => l.Proration))
+            {
+                productName = "Proration adjustment";
+            }
+            else
+            {
+                var productId = lineItem?.Price?.ProductId;
+
+                productName = products.FirstOrDefault(p => p.Id == productId)?.Name;
+            }
+
+
 
             var invoiceDto = new SubServiceInvoiceDto
             {
@@ -306,7 +317,7 @@ internal sealed class SubscriptionService : ISubscriptionService
                 InvoicePdfUrl = invoice.InvoicePdf,
                 PaymentMethodBrand = paymentDetails?.Brand,
                 PaymentMethodLast4 = paymentDetails?.Last4,
-                ProductName = productName
+                ProductName = productName ?? "Proration adjustment"
             };
 
             invoiceDtos.Add(invoiceDto);
