@@ -28,19 +28,97 @@ public class StripeService : IStripeService
 
     public async Task<IEnumerable<Subscription>> GetCustomerSubscriptionsAsync(string customerId)
     {
-        var listOptions = new SubscriptionListOptions
+        try
         {
-            Customer = customerId,
-            Expand = new List<string>
+            Console.WriteLine($"Starting GetCustomerSubscriptionsAsync for customer: {customerId}");
+            
+            var allSubscriptions = new List<Subscription>();
+            var subscriptionService = new SubscriptionService();
+            string lastId = null;
+            bool hasMore = true;
+            int batchSize = 100;
+            int batchCount = 0;
+            
+            // Use pagination to fetch all subscriptions in batches
+            while (hasMore)
             {
-                "data.items.data.price"
+                try
+                {
+                    batchCount++;
+                    Console.WriteLine($"Fetching batch #{batchCount} of subscriptions for customer: {customerId}");
+                    
+                    var listOptions = new SubscriptionListOptions
+                    {
+                        Customer = customerId,
+                        Expand = new List<string>
+                        {
+                            "data.items.data.price",
+                            "data.latest_invoice",
+                            "data.default_payment_method"
+                        },
+                        Status = "all", // This will include all subscriptions: active, past_due, unpaid, canceled, incomplete, incomplete_expired, trialing
+                        Limit = batchSize
+                    };
+                    
+                    // Add starting_after parameter for pagination if we have a last ID
+                    if (!string.IsNullOrEmpty(lastId))
+                    {
+                        Console.WriteLine($"Using pagination with starting_after: {lastId}");
+                        listOptions.StartingAfter = lastId;
+                    }
+                    
+                    var subscriptionBatch = await subscriptionService.ListAsync(listOptions);
+                    Console.WriteLine($"Retrieved {subscriptionBatch.Data.Count} subscriptions in batch #{batchCount}");
+                    
+                    allSubscriptions.AddRange(subscriptionBatch.Data);
+                    
+                    // Check if we need to fetch more
+                    hasMore = subscriptionBatch.HasMore;
+                    Console.WriteLine($"HasMore: {hasMore}");
+                    
+                    // Update the last ID for the next batch
+                    if (hasMore && subscriptionBatch.Data.Count > 0)
+                    {
+                        lastId = subscriptionBatch.Data.Last().Id;
+                        Console.WriteLine($"Last ID for next batch: {lastId}");
+                    }
+                    
+                    // Safety check - if we've done too many batches, break to prevent infinite loops
+                    if (batchCount >= 10)
+                    {
+                        Console.WriteLine("Reached maximum batch count (10), stopping pagination");
+                        hasMore = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error fetching batch #{batchCount}: {ex.Message}");
+                    // Continue with the next batch if possible
+                    if (string.IsNullOrEmpty(lastId))
+                    {
+                        // If we don't have a lastId, we can't continue pagination
+                        hasMore = false;
+                    }
+                }
             }
-        };
-
-        var subscriptionService = new SubscriptionService();
-        var subscriptions = await subscriptionService.ListAsync(listOptions);
-        
-        return subscriptions.Data;
+            
+            Console.WriteLine($"Total subscriptions retrieved: {allSubscriptions.Count}");
+            return allSubscriptions;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in GetCustomerSubscriptionsAsync: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                Console.WriteLine($"Inner exception stack trace: {ex.InnerException.StackTrace}");
+            }
+            
+            // Return empty list on error
+            return new List<Subscription>();
+        }
     }
 
     public async Task<(IEnumerable<Product> Products, IEnumerable<Price> Prices)> GetProductsAndPricesAsync()
@@ -64,19 +142,159 @@ public class StripeService : IStripeService
 
     public async Task<IEnumerable<Invoice>> GetCustomerInvoicesAsync(string customerId)
     {
-        var invoiceOptions = new InvoiceListOptions
+        try
         {
-            Customer = customerId,
-            Status = null, // This will return all invoices regardless of status (paid, uncollectible, void, etc.)
-            Expand = new List<string> { 
-                "data.charge",
-                "data.lines.data.price"
+            Console.WriteLine($"Starting GetCustomerInvoicesAsync for customer: {customerId}");
+            
+            // Define all possible invoice statuses
+            var statuses = new List<string> 
+            { 
+                "draft", "open", "paid", "uncollectible", "void" 
+            };
+            
+            var invoiceService = new InvoiceService();
+            
+            // Create tasks for fetching invoices for each status in parallel
+            var invoiceTasks = statuses.Select(status => 
+            {
+                Console.WriteLine($"Creating task to fetch invoices with status: {status}");
+                var invoiceOptions = new InvoiceListOptions
+                {
+                    Customer = customerId,
+                    Status = status,
+                    Expand = new List<string> { 
+                        "data.charge",
+                        "data.lines.data.price",
+                        "data.subscription"
+                    },
+                    Limit = 100 // Increase limit to get more invoices per request
+                };
+                
+                return invoiceService.ListAsync(invoiceOptions);
+            }).ToList();
+            
+            Console.WriteLine($"Created {invoiceTasks.Count} tasks for fetching invoices by status");
+            
+            // Also create a task for fetching canceled subscription invoices with a timeout
+            Console.WriteLine("Starting task to fetch canceled subscription invoices");
+            var canceledInvoicesTask = GetCanceledSubscriptionInvoicesAsync(customerId, 15); // Increased timeout to 15 seconds
+            
+            // Wait for all status-based invoice tasks to complete
+            Console.WriteLine("Waiting for all status-based invoice tasks to complete");
+            await Task.WhenAll(invoiceTasks);
+            Console.WriteLine("All status-based invoice tasks completed");
+            
+            // Combine all results
+            var allInvoices = new List<Invoice>();
+            foreach (var task in invoiceTasks)
+            {
+                var invoices = task.Result.Data;
+                Console.WriteLine($"Retrieved {invoices.Count} invoices from status task");
+                allInvoices.AddRange(invoices);
             }
-        };
+            
+            Console.WriteLine($"Total invoices from status tasks: {allInvoices.Count}");
+            
+            // Add invoices from canceled subscriptions (if available within timeout)
+            Console.WriteLine("Waiting for canceled subscription invoices task to complete");
+            var canceledInvoices = await canceledInvoicesTask;
+            Console.WriteLine($"Retrieved {canceledInvoices.Count()} invoices from canceled subscriptions");
+            
+            // Combine all invoices and remove duplicates
+            var result = allInvoices
+                .Union(canceledInvoices, new InvoiceComparer())
+                .ToList();
+                
+            Console.WriteLine($"Final total invoices after removing duplicates: {result.Count}");
+            
+            // If we got no invoices, try the fallback approach
+            if (result.Count == 0)
+            {
+                Console.WriteLine("No invoices found with parallel approach, trying fallback method");
+                return await GetCustomerInvoicesFallbackAsync(customerId);
+            }
+            
+            return result;
+        }
+        catch (Exception ex)
+        {
+            // Log the error (in a production environment)
+            Console.WriteLine($"Error retrieving invoices: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                Console.WriteLine($"Inner exception stack trace: {ex.InnerException.StackTrace}");
+            }
+            
+            // Try the fallback approach
+            Console.WriteLine("Error occurred, trying fallback method");
+            return await GetCustomerInvoicesFallbackAsync(customerId);
+        }
+    }
+    
+    // Fallback method to get invoices using a simpler approach
+    private async Task<IEnumerable<Invoice>> GetCustomerInvoicesFallbackAsync(string customerId)
+    {
+        try
+        {
+            Console.WriteLine($"Starting fallback method to get invoices for customer: {customerId}");
+            
+            // First try to get all invoices directly without specifying status
+            var invoiceService = new InvoiceService();
+            var invoiceOptions = new InvoiceListOptions
+            {
+                Customer = customerId,
+                Limit = 100
+            };
+            
+            var invoices = await invoiceService.ListAsync(invoiceOptions);
+            Console.WriteLine($"Fallback method retrieved {invoices.Data.Count} invoices directly");
+            
+            // If we got invoices, return them
+            if (invoices.Data.Count > 0)
+            {
+                return invoices.Data;
+            }
+            
+            // If no invoices were found, try to get them by subscription
+            Console.WriteLine("No invoices found directly, trying to get them by subscription");
+            var subscriptions = await GetCustomerSubscriptionsAsync(customerId);
+            Console.WriteLine($"Retrieved {subscriptions.Count()} subscriptions");
+            
+            var allInvoices = new List<Invoice>();
+            
+            // Process each subscription sequentially to avoid timeout issues
+            foreach (var subscription in subscriptions)
+            {
+                var subscriptionInvoices = await GetInvoicesBySubscriptionIdAsync(customerId, subscription.Id);
+                allInvoices.AddRange(subscriptionInvoices);
+            }
+            
+            Console.WriteLine($"Fallback method retrieved {allInvoices.Count} invoices by subscription");
+            return allInvoices;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in fallback method: {ex.Message}");
+            // Return empty list as last resort
+            return new List<Invoice>();
+        }
+    }
 
-        var invoiceService = new InvoiceService();
-        var invoices = await invoiceService.ListAsync(invoiceOptions);
-        return invoices.Data;
+    // Helper class to compare invoices and remove duplicates
+    private class InvoiceComparer : IEqualityComparer<Invoice>
+    {
+        public bool Equals(Invoice x, Invoice y)
+        {
+            return x.Id == y.Id;
+        }
+
+        public int GetHashCode(Invoice obj)
+        {
+            return obj.Id.GetHashCode();
+        }
     }
 
     public async Task<IEnumerable<Customer>> GetAllCustomersAsync()
@@ -367,5 +585,135 @@ public class StripeService : IStripeService
         var subscriptionService = new SubscriptionService();
         var subscription = await subscriptionService.GetAsync(subscriptionId);
         return subscription.Items.Data[0].Id;
+    }
+
+    public async Task<IEnumerable<Invoice>> GetCanceledSubscriptionInvoicesAsync(string customerId, int timeoutSeconds = 10)
+    {
+        try
+        {
+            Console.WriteLine($"Starting GetCanceledSubscriptionInvoicesAsync for customer: {customerId} with timeout: {timeoutSeconds}s");
+            
+            // First, get all canceled subscriptions for the customer
+            Console.WriteLine("Fetching all subscriptions to find canceled ones");
+            var subscriptions = await GetCustomerSubscriptionsAsync(customerId);
+            Console.WriteLine($"Retrieved {subscriptions.Count()} total subscriptions");
+            
+            var canceledSubscriptionIds = subscriptions
+                .Where(s => s.Status == "canceled")
+                .Select(s => s.Id)
+                .ToList();
+            
+            Console.WriteLine($"Found {canceledSubscriptionIds.Count} canceled subscriptions");
+            
+            if (!canceledSubscriptionIds.Any())
+            {
+                Console.WriteLine("No canceled subscriptions found, returning empty list");
+                return new List<Invoice>();
+            }
+            
+            // Create a list to hold all invoices for canceled subscriptions
+            var invoiceService = new InvoiceService();
+            
+            // Create tasks for fetching invoices for each subscription in parallel
+            Console.WriteLine("Creating tasks to fetch invoices for each canceled subscription");
+            var invoiceTasks = canceledSubscriptionIds.Select(subscriptionId => 
+            {
+                Console.WriteLine($"Creating task for subscription: {subscriptionId}");
+                var invoiceOptions = new InvoiceListOptions
+                {
+                    Customer = customerId,
+                    Subscription = subscriptionId,
+                    Expand = new List<string> { 
+                        "data.charge",
+                        "data.lines.data.price",
+                        "data.subscription"
+                    },
+                    Limit = 100
+                };
+                
+                return invoiceService.ListAsync(invoiceOptions);
+            }).ToList();
+            
+            Console.WriteLine($"Created {invoiceTasks.Count} tasks for fetching invoices by subscription");
+            
+            // Wait for all tasks to complete with a timeout
+            Console.WriteLine($"Waiting for tasks to complete with timeout of {timeoutSeconds} seconds");
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(timeoutSeconds));
+            var completedTask = await Task.WhenAny(Task.WhenAll(invoiceTasks), timeoutTask);
+            
+            // If timeout occurred, only process completed tasks
+            var canceledInvoices = new List<Invoice>();
+            if (completedTask == timeoutTask)
+            {
+                Console.WriteLine("Timeout occurred before all tasks completed");
+                // Only process completed tasks
+                var completedTasks = invoiceTasks.Where(t => t.IsCompleted && !t.IsFaulted).ToList();
+                Console.WriteLine($"{completedTasks.Count} out of {invoiceTasks.Count} tasks completed before timeout");
+                
+                foreach (var task in completedTasks)
+                {
+                    var invoices = task.Result.Data;
+                    Console.WriteLine($"Retrieved {invoices.Count} invoices from completed task");
+                    canceledInvoices.AddRange(invoices);
+                }
+            }
+            else
+            {
+                Console.WriteLine("All tasks completed successfully before timeout");
+                // All tasks completed successfully
+                foreach (var task in invoiceTasks)
+                {
+                    var invoices = task.Result.Data;
+                    Console.WriteLine($"Retrieved {invoices.Count} invoices from task");
+                    canceledInvoices.AddRange(invoices);
+                }
+            }
+            
+            Console.WriteLine($"Total invoices from canceled subscriptions: {canceledInvoices.Count}");
+            return canceledInvoices;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in GetCanceledSubscriptionInvoicesAsync: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                Console.WriteLine($"Inner exception stack trace: {ex.InnerException.StackTrace}");
+            }
+            
+            return new List<Invoice>();
+        }
+    }
+
+    // Helper method to get invoices for a specific subscription
+    private async Task<IEnumerable<Invoice>> GetInvoicesBySubscriptionIdAsync(string customerId, string subscriptionId)
+    {
+        try
+        {
+            Console.WriteLine($"Getting invoices for subscription: {subscriptionId}");
+            var invoiceService = new InvoiceService();
+            var invoiceOptions = new InvoiceListOptions
+            {
+                Customer = customerId,
+                Subscription = subscriptionId,
+                Expand = new List<string> { 
+                    "data.charge",
+                    "data.lines.data.price",
+                    "data.subscription"
+                },
+                Limit = 100
+            };
+            
+            var invoices = await invoiceService.ListAsync(invoiceOptions);
+            Console.WriteLine($"Retrieved {invoices.Data.Count} invoices for subscription: {subscriptionId}");
+            return invoices.Data;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting invoices for subscription {subscriptionId}: {ex.Message}");
+            return new List<Invoice>();
+        }
     }
 }

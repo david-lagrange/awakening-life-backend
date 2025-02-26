@@ -11,6 +11,7 @@ public interface IStripeService
     Task<Customer> GetCustomerByIdAsync(string customerId);
     Task<IEnumerable<Subscription>> GetCustomerSubscriptionsAsync(string customerId);
     Task<IEnumerable<Invoice>> GetCustomerInvoicesAsync(string customerId);
+    Task<IEnumerable<Invoice>> GetCanceledSubscriptionInvoicesAsync(string customerId, int timeoutSeconds = 10);
     Task<IEnumerable<PaymentMethod>> GetCustomerPaymentMethodsAsync(string customerId);
     Task<(IEnumerable<Customer> Customers, IEnumerable<Invoice> Invoices)> GetCustomersWithInvoicesAsync();
     Task<Subscription> UpdateSubscriptionAutoRenewal(string subscriptionId, bool autoRenew);
