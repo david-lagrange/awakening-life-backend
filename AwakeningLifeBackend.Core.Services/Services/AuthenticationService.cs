@@ -74,17 +74,16 @@ internal sealed class AuthenticationService : IAuthenticationService
             var stripeCustomer = await _stripeService.CreateCustomerAsync(user.Email);
 #pragma warning restore CS8604 // Possible null reference argument.
 
-            //user.StripeCustomerId = stripeCustomer.Id;
+            user.StripeCustomerId = stripeCustomer.Id;
 
-            //var freeSubscriptionId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!;
+            var freeSubscriptionId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!;
 
-            //if (string.IsNullOrEmpty(freeSubscriptionId))
-            //{
-            //    _logger.LogError("Failed to get free subscription price ID from environment variables.");
-            //    throw new EnvironmentVariableNotSetException("Failed to get free subscription price ID from environment variables.");
-            //}
+            if (!string.IsNullOrEmpty(freeSubscriptionId))
+            {
+                await _stripeService.AddFreeSubscriptionAsync(user.StripeCustomerId, freeSubscriptionId);
+            }
 
-            //await _stripeService.AddFreeSubscriptionAsync(user.StripeCustomerId, freeSubscriptionId);
+            
         }
         catch (StripeException ex)
         {
@@ -139,6 +138,8 @@ internal sealed class AuthenticationService : IAuthenticationService
 
         try
         {
+            var freeSubscriptionPriceId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID");
+
             if (string.IsNullOrEmpty(_user.StripeCustomerId))
             {
                 _logger.LogInformation($"Creating new Stripe customer for user {_user.UserName}");
@@ -146,17 +147,23 @@ internal sealed class AuthenticationService : IAuthenticationService
                 var stripeCustomer = await _stripeService.CreateCustomerAsync(_user.Email);
 #pragma warning restore CS8604 // Possible null reference argument.
 
-                _user.StripeCustomerId = stripeCustomer.Id;
-
-                //await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!);
+                if (!string.IsNullOrEmpty(freeSubscriptionPriceId))
+                {
+                    _user.StripeCustomerId = stripeCustomer.Id;
+                    await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, freeSubscriptionPriceId);
+                }
             }
 
-            //var subscriptions = await _stripeService.GetCustomerSubscriptionsAsync(_user.StripeCustomerId!);
+            if (!string.IsNullOrEmpty(freeSubscriptionPriceId) && !string.IsNullOrEmpty(_user.StripeCustomerId))
+            {
+                var subscriptions = await _stripeService.GetCustomerSubscriptionsAsync(_user.StripeCustomerId!);
 
-            //if (subscriptions.Count() == 0)
-            //{
-            //    await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!);
-            //}
+                if (subscriptions.Count() == 0)
+                {
+                    await _stripeService.AddFreeSubscriptionAsync(_user.StripeCustomerId, Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!);
+                }
+            }
+
         }
         catch (StripeException ex)
         {
@@ -216,9 +223,9 @@ internal sealed class AuthenticationService : IAuthenticationService
             new Claim("emailConfirmed", _user!.EmailConfirmed.ToString().ToLower()!),
         };
 
-        var subscriptionProductId = await _stripeService.GetSubscriptionProductId(_user.StripeCustomerId!);
+        var subscriptionProductIds = await _stripeService.GetSubscriptionProductIds(_user.StripeCustomerId!);
 
-        await MapRolesForSubscription(subscriptionProductId);
+        await MapRolesForSubscription(subscriptionProductIds);
 
         var roles = await _userManager.GetRolesAsync(_user);
 
@@ -236,27 +243,32 @@ internal sealed class AuthenticationService : IAuthenticationService
         return claims;
     }
 
-    private async Task MapRolesForSubscription(string productId)
+    private async Task MapRolesForSubscription(IEnumerable<string> productIds)
     {
         var subscriptionRoles = await _repository.SubscriptionRole.GetSubscriptionRolesAsync(false);
         var currentUserRoles = await _userManager.GetRolesAsync(_user!);
 
+        // Get all roles associated with any of the user's product IDs
         var currentSubscriptionRoles = subscriptionRoles
-            .Where(sr => sr.ProductId == productId)
+            .Where(sr => productIds.Contains(sr.ProductId))
             .Select(sr => sr.Role?.Name)
             .Where(role => role != null)
+            .Distinct()
             .ToList();
 
+        // Get all roles that are managed by the subscription system
         var allManagedRoles = subscriptionRoles
             .Select(sr => sr.Role?.Name)
             .Where(role => role != null)
             .Distinct()
             .ToList();
 
+        // Roles to remove: managed roles the user has that aren't in their current subscription roles
         var rolesToRemove = currentUserRoles
             .Where(role => allManagedRoles.Contains(role) && !currentSubscriptionRoles.Contains(role))
             .ToList();
 
+        // Roles to add: subscription roles the user doesn't already have
         var rolesToAdd = currentSubscriptionRoles
             .Where(role => !currentUserRoles.Contains(role!))
             .ToList();

@@ -19,7 +19,7 @@ public interface IStripeService
     Task<string> CreateSetupIntentAsync(string customerId);
     Task UpdateDefaultPaymentMethodAsync(string customerId, string paymentMethodId);
     Task DeletePaymentMethodAsync(string paymentMethodId);
-    Task<string> GetSubscriptionProductId(string customerId);
+    Task<IEnumerable<string>> GetSubscriptionProductIds(string customerId);
     Task<Subscription> CreateSubscriptionAsync(string customerId, string priceId, string? paymentMethodId, bool isDowngrade, DateTime? trialEnd = null);
     Task CancelSubscriptionImmediatelyAsync(string subscriptionId);
     Task<Subscription> UpdateSubscriptionPriceAsync(

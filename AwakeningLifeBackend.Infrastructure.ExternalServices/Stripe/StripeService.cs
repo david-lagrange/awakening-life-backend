@@ -1,5 +1,4 @@
 ﻿using Stripe;
-using System.Text.Json;
 
 namespace AwakeningLifeBackend.Infrastructure.ExternalServices;
 
@@ -442,28 +441,25 @@ public class StripeService : IStripeService
         await service.DetachAsync(paymentMethodId);
     }
 
-    public async Task<string> GetSubscriptionProductId(string customerId)
+    public async Task<IEnumerable<string>> GetSubscriptionProductIds(string customerId)
     {
         var subscriptions = await GetCustomerSubscriptionsAsync(customerId);
         var freePriceId = Environment.GetEnvironmentVariable("AWAKENING_LIFE_STRIPE_FREE_PRICE_ID")!;
         
-        // Use the same ordering logic as SubscriptionService
-        var currentSubscription = subscriptions
-            .OrderByDescending(s => 
-                s.Status == "active" && 
-                s.Items.Data.FirstOrDefault()?.Price?.Id != freePriceId && 
-                s.CurrentPeriodEnd > DateTime.UtcNow)
-            .ThenByDescending(s => s.CurrentPeriodEnd)
-            .ThenByDescending(s => s.CurrentPeriodStart)
-            .FirstOrDefault();
-
-        if (currentSubscription == null || 
-            currentSubscription.Items.Data.FirstOrDefault()?.Price?.ProductId == null)
-        {
-            return string.Empty;
-        }
-
-        return currentSubscription.Items.Data.First().Price.ProductId;
+        // Get all active or trialing subscriptions that aren't the free tier
+        var activeSubscriptions = subscriptions
+            .Where(s => (s.Status == "active" || s.Status == "trialing") && 
+                   s.Items.Data.FirstOrDefault()?.Price?.Id != freePriceId);
+            
+        // Extract all product IDs from these subscriptions
+        var productIds = activeSubscriptions
+            .SelectMany(s => s.Items.Data)
+            .Where(item => item.Price?.ProductId != null)
+            .Select(item => item.Price.ProductId)
+            .Distinct()
+            .ToList();
+            
+        return productIds;
     }
 
     public async Task<Subscription> CreateSubscriptionAsync(
