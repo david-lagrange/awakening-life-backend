@@ -607,8 +607,8 @@ public class EmailService : IEmailService
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding: 20px; background-color: #f9f9f9; border-radius: 0 0 4px 4px; white-space: pre-wrap;'>
-                                                    {message}
+                                                <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding: 20px; background-color: #f9f9f9; border-radius: 0 0 4px 4px; white-space: pre-line;'>
+                                                    {message.Trim()}
                                                 </td>
                                             </tr>
                                         </table>
