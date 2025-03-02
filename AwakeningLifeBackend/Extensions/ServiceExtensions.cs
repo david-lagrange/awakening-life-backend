@@ -145,7 +145,7 @@ public static class ServiceExtensions
                 Title = "Awakening Life API",
                 Version = "v1",
                 Description = "API by Equanimity",
-                TermsOfService = new Uri("https://www.awakeninglife.ai/terms-of-use"),
+                TermsOfService = new Uri("https://www.awakeninglife.ai/legal/api/terms-of-service"),
                 Contact = new OpenApiContact
                 {
                     Name = "David Lagrange",
@@ -155,7 +155,7 @@ public static class ServiceExtensions
                 License = new OpenApiLicense
                 {
                     Name = "Awakening Life API LICX",
-                    Url = new Uri("https://www.awakeninglife.ai/privacy-policy"),
+                    Url = new Uri("https://www.awakeninglife.ai/legal/api/privacy-policy"),
                 }
             });
 
