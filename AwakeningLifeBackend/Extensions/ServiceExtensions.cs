@@ -142,20 +142,20 @@ public static class ServiceExtensions
         {
             s.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "Equanimity API",
+                Title = "Awakening Life API",
                 Version = "v1",
                 Description = "API by Equanimity",
-                TermsOfService = new Uri("https://www.equanimity-solutions.com/terms-of-use"),
+                TermsOfService = new Uri("https://www.awakeninglife.ai/terms-of-use"),
                 Contact = new OpenApiContact
                 {
                     Name = "David Lagrange",
                     Email = "david@equanimity-solutions.com",
-                    Url = new Uri("https://www.equanimity-solutions.com/about"),
+                    Url = new Uri("https://www.awakeninglife.ai/about"),
                 },
                 License = new OpenApiLicense
                 {
-                    Name = "Equanimity API LICX",
-                    Url = new Uri("https://www.equanimity-solutions.com/privacy-policy"),
+                    Name = "Awakening Life API LICX",
+                    Url = new Uri("https://www.awakeninglife.ai/privacy-policy"),
                 }
             });
 
