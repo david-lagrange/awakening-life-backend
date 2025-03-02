@@ -37,4 +37,5 @@ public class RepositoryContext : IdentityDbContext<User>
     public DbSet<SubscriptionFeature>? SubscriptionFeatures { get; set; }
     public DbSet<SubscriptionRole>? SubscriptionRoles { get; set; }
     public DbSet<SubscriptionCancelation>? SubscriptionCancelations { get; set; }
+    public DbSet<Waitlist>? Waitlists { get; set; }
 }

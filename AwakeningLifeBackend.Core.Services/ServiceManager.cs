@@ -19,6 +19,7 @@ public sealed class ServiceManager : IServiceManager
     private readonly Lazy<IAuthenticationService> _authenticationService;
     private readonly Lazy<IUserService> _userService;
     private readonly Lazy<ISubscriptionService> _subscriptionService;
+    private readonly Lazy<IWaitlistService> _waitlistService;
 
     public ServiceManager(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IOptions<JwtConfiguration> configuration,
         IEmailService emailService, IStripeService stripeService)
@@ -28,6 +29,7 @@ public sealed class ServiceManager : IServiceManager
         _dependantEntityService = new Lazy<IDependantEntityService>(() => new DependantEntityService(repositoryManager, logger, mapper));
         _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService));
         _subscriptionService = new Lazy<ISubscriptionService>(() => new SubscriptionService(repositoryManager, logger, mapper, stripeService, userManager, emailService));
+        _waitlistService = new Lazy<IWaitlistService>(() => new WaitlistService(repositoryManager, logger, mapper, emailService));
     }
 
     public IAuthenticationService AuthenticationService => _authenticationService.Value;
@@ -35,4 +37,5 @@ public sealed class ServiceManager : IServiceManager
     public IDependantEntityService DependantEntityService => _dependantEntityService.Value;
     public IUserService UserService => _userService.Value;
     public ISubscriptionService SubscriptionService => _subscriptionService.Value;
+    public IWaitlistService WaitlistService => _waitlistService.Value;
 }

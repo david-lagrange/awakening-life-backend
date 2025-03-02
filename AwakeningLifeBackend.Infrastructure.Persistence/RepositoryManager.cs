@@ -12,6 +12,7 @@ public sealed class RepositoryManager : IRepositoryManager
     private readonly Lazy<ISubscriptionFeatureRepository> _subscriptionFeatureRepository;
     private readonly Lazy<ISubscriptionRoleRepository> _subscriptionRoleRepository;
     private readonly Lazy<ISubscriptionCancelationRepository> _subscriptionCancelationRepository;
+    private readonly Lazy<IWaitlistRepository> _waitlistRepository;
 
     public RepositoryManager(RepositoryContext repositoryContext)
     {
@@ -21,6 +22,7 @@ public sealed class RepositoryManager : IRepositoryManager
         _subscriptionFeatureRepository = new Lazy<ISubscriptionFeatureRepository>(() => new SubscriptionFeatureRepository(repositoryContext));
         _subscriptionRoleRepository = new Lazy<ISubscriptionRoleRepository>(() => new SubscriptionRoleRepository(repositoryContext));
         _subscriptionCancelationRepository = new Lazy<ISubscriptionCancelationRepository>(() => new SubscriptionCancelationRepository(repositoryContext));
+        _waitlistRepository = new Lazy<IWaitlistRepository>(() => new WaitlistRepository(repositoryContext));
     }
 
     public IBaseEntityRepository BaseEntity => _baseEntityRepository.Value;
@@ -28,6 +30,7 @@ public sealed class RepositoryManager : IRepositoryManager
     public ISubscriptionFeatureRepository SubscriptionFeature => _subscriptionFeatureRepository.Value;
     public ISubscriptionRoleRepository SubscriptionRole => _subscriptionRoleRepository.Value;
     public ISubscriptionCancelationRepository SubscriptionCancelation => _subscriptionCancelationRepository.Value;
+    public IWaitlistRepository Waitlist => _waitlistRepository.Value;
     public Task SaveAsync(CancellationToken ct = default) => _repositoryContext.SaveChangesAsync(ct);
     public IDbContextTransaction BeginTransaction() => _repositoryContext.Database.BeginTransaction();
 }

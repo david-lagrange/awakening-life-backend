@@ -9,6 +9,7 @@ public interface IRepositoryManager
     ISubscriptionFeatureRepository SubscriptionFeature { get; }
     ISubscriptionRoleRepository SubscriptionRole { get; }
     ISubscriptionCancelationRepository SubscriptionCancelation { get; }
+    IWaitlistRepository Waitlist { get; }
     Task SaveAsync(CancellationToken ct = default);
     IDbContextTransaction BeginTransaction();
 }

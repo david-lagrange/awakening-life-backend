@@ -34,6 +34,9 @@ public class MappingProfile : Profile
         CreateMap<SetupIntent, SubServiceSetupIntentDto>();
 
         CreateMap<SubscriptionFeature, SubscriptionFeatureDto>().ReverseMap();
+
+        CreateMap<Waitlist, WaitlistDto>();
+        CreateMap<WaitlistForCreationDto, Waitlist>();
     }
 
     public static DateTime GetEstimatedRenewalDate(Price price)

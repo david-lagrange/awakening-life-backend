@@ -320,4 +320,89 @@ public class EmailService : IEmailService
 
         await _resend.EmailSendAsync(message);
     }
+
+    public async Task SendWaitlistConfirmationEmailAsync(string recipient)
+    {
+        var message = new EmailMessage();
+        message.From = "no-reply@accounts.equanimity-solutions.com";
+        message.To.Add(recipient);
+        message.Subject = "You've Joined Our Waitlist - Equanimity";
+        message.HtmlBody = $@"
+<!DOCTYPE html>
+<html lang='en' xmlns='http://www.w3.org/1999/xhtml' xmlns:v='urn:schemas-microsoft-com:vml' xmlns:o='urn:schemas-microsoft-com:office:office'>
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='format-detection' content='telephone=no, date=no, address=no, email=no'>
+    <meta name='x-apple-disable-message-reformatting'>
+    <meta name='color-scheme' content='light dark'>
+    <meta name='supported-color-schemes' content='light dark'>
+    <title>Waitlist Confirmation - Equanimity</title>
+</head>
+<body style='margin: 0; padding: 0; background-color: #f5f4f4; font-family: Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;'>
+    <!-- Preview Text -->
+    <div style='display: none; max-height: 0px; overflow: hidden;'>
+        Thank you for joining our waitlist! We'll notify you when access becomes available.
+        &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+    </div>
+    
+    <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background: #f5f4f4;'>
+        <tr>
+            <td align='center' style='padding: 40px 0;'>
+                <table role='presentation' style='width: 100%; max-width: 600px; border-collapse: collapse; border: 0; border-spacing: 0; background: #ffffff;'>
+                    <!-- Header -->
+                    <tr>
+                        <td style='background-color: #345053; padding: 30px; border-radius: 8px 8px 0 0;' align='center'>
+                            <h1 style='color: #f5f4f4; margin: 0; font-size: 24px; font-family: Arial, sans-serif;'>You're on the Waitlist!</h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style='padding: 40px 30px;'>
+                            <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;'>
+                                <tr>
+                                    <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding-bottom: 25px;'>
+                                        Thank you for joining our waitlist! We're excited to have you as part of our community.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding-bottom: 25px;'>
+                                        We'll notify you as soon as access becomes available. In the meantime, feel free to follow us on social media for updates.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;'>
+                                        If you have any questions, please don't hesitate to contact our support team.
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style='background-color: #f5f4f4; padding: 30px; border-radius: 0 0 8px 8px;' align='center'>
+                            <p style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; margin: 0;'>
+                                &copy; {DateTime.Now.Year} Equanimity. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>";
+
+        message.Headers = new Dictionary<string, string>
+        {
+            { "List-Unsubscribe", "<mailto:unsubscribe@accounts.equanimity-solutions.com?subject=unsubscribe>" },
+            { "Precedence", "bulk" },
+            { "X-Auto-Response-Suppress", "OOF, AutoReply" }
+        };
+
+        await _resend.EmailSendAsync(message);
+    }
 }
