@@ -326,7 +326,7 @@ public class EmailService : IEmailService
         var message = new EmailMessage();
         message.From = "no-reply@accounts.equanimity-solutions.com";
         message.To.Add(recipient);
-        message.Subject = "You've Joined Our Waitlist - Equanimity";
+        message.Subject = "Welcome to the Awakening Life Journey";
         message.HtmlBody = $@"
 <!DOCTYPE html>
 <html lang='en' xmlns='http://www.w3.org/1999/xhtml' xmlns:v='urn:schemas-microsoft-com:vml' xmlns:o='urn:schemas-microsoft-com:office:office'>
@@ -338,12 +338,21 @@ public class EmailService : IEmailService
     <meta name='x-apple-disable-message-reformatting'>
     <meta name='color-scheme' content='light dark'>
     <meta name='supported-color-schemes' content='light dark'>
-    <title>Waitlist Confirmation - Equanimity</title>
+    <title>Welcome to Awakening Life</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
 </head>
 <body style='margin: 0; padding: 0; background-color: #f5f4f4; font-family: Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;'>
     <!-- Preview Text -->
     <div style='display: none; max-height: 0px; overflow: hidden;'>
-        Thank you for joining our waitlist! We'll notify you when access becomes available.
+        Your journey to self-realization begins now. We'll notify you as soon as your access is ready.
         &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
     </div>
     
@@ -354,7 +363,7 @@ public class EmailService : IEmailService
                     <!-- Header -->
                     <tr>
                         <td style='background-color: #345053; padding: 30px; border-radius: 8px 8px 0 0;' align='center'>
-                            <h1 style='color: #f5f4f4; margin: 0; font-size: 24px; font-family: Arial, sans-serif;'>You're on the Waitlist!</h1>
+                            <h1 style='color: #f5f4f4; margin: 0; font-size: 24px; font-family: Arial, sans-serif;'>Your Journey Awaits</h1>
                         </td>
                     </tr>
                     
@@ -364,17 +373,81 @@ public class EmailService : IEmailService
                             <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;'>
                                 <tr>
                                     <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding-bottom: 25px;'>
-                                        Thank you for joining our waitlist! We're excited to have you as part of our community.
+                                        Thank you for joining the Awakening Life waitlist. You've taken the first step on a profound journey toward self-realization.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='padding-bottom: 30px;'>
+                                        <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background: #f5f4f4; border-radius: 8px;'>
+                                            <tr>
+                                                <td style='padding: 20px; text-align: center;'>
+                                                    <h3 style='color: #345053; font-family: Arial, sans-serif; margin-top: 0; margin-bottom: 15px; font-size: 18px;'>What's Next on Your Path</h3>
+                                                    <p style='color: #345053; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.5; margin: 0;'>
+                                                        We're preparing your access to guided journeys that will help you discover your true nature through:
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='padding-bottom: 30px;'>
+                                        <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;'>
+                                            <tr>
+                                                <td style='padding: 0 10px 20px 10px; width: 50px; vertical-align: top;'>
+                                                    <div style='width: 40px; height: 40px; border-radius: 50%; background-color: rgba(79, 70, 229, 0.1); display: inline-block; text-align: center; line-height: 40px;'>
+                                                        <span style='color: #4F46E5; font-size: 18px;'>✦</span>
+                                                    </div>
+                                                </td>
+                                                <td style='padding: 0 0 20px 0;'>
+                                                    <p style='color: #345053; font-family: Arial, sans-serif; font-size: 15px; font-weight: bold; margin: 0 0 5px 0;'>Intention</p>
+                                                    <p style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; margin: 0;'>Begin with clear purpose to directly experience your true nature</p>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style='padding: 0 10px 20px 10px; width: 50px; vertical-align: top;'>
+                                                    <div style='width: 40px; height: 40px; border-radius: 50%; background-color: rgba(236, 72, 153, 0.1); display: inline-block; text-align: center; line-height: 40px;'>
+                                                        <span style='color: #EC4899; font-size: 18px;'>◇</span>
+                                                    </div>
+                                                </td>
+                                                <td style='padding: 0 0 20px 0;'>
+                                                    <p style='color: #345053; font-family: Arial, sans-serif; font-size: 15px; font-weight: bold; margin: 0 0 5px 0;'>Openness</p>
+                                                    <p style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; margin: 0;'>Create space for insights to emerge naturally without judgment</p>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style='padding: 0 10px 20px 10px; width: 50px; vertical-align: top;'>
+                                                    <div style='width: 40px; height: 40px; border-radius: 50%; background-color: rgba(16, 185, 129, 0.1); display: inline-block; text-align: center; line-height: 40px;'>
+                                                        <span style='color: #10B981; font-size: 18px;'>✧</span>
+                                                    </div>
+                                                </td>
+                                                <td style='padding: 0 0 20px 0;'>
+                                                    <p style='color: #345053; font-family: Arial, sans-serif; font-size: 15px; font-weight: bold; margin: 0 0 5px 0;'>Communication</p>
+                                                    <p style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; margin: 0;'>Express your experiences authentically for deeper release</p>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style='padding: 0 10px 0 10px; width: 50px; vertical-align: top;'>
+                                                    <div style='width: 40px; height: 40px; border-radius: 50%; background-color: rgba(139, 92, 246, 0.1); display: inline-block; text-align: center; line-height: 40px;'>
+                                                        <span style='color: #8B5CF6; font-size: 18px;'>⟳</span>
+                                                    </div>
+                                                </td>
+                                                <td style='padding: 0;'>
+                                                    <p style='color: #345053; font-family: Arial, sans-serif; font-size: 15px; font-weight: bold; margin: 0 0 5px 0;'>Surrender</p>
+                                                    <p style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; margin: 0;'>Release attachment to outcomes, trusting the process of discovery</p>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding-bottom: 25px;'>
-                                        We'll notify you as soon as access becomes available. In the meantime, feel free to follow us on social media for updates.
+                                        We'll notify you as soon as your access is ready. In the meantime, take a moment each day to pause and notice who is aware of your thoughts and experiences.
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;'>
-                                        If you have any questions, please don't hesitate to contact our support team.
+                                    <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding-bottom: 25px;'>
+                                        Your journey to self-realization has already begun.
                                     </td>
                                 </tr>
                             </table>
@@ -384,8 +457,11 @@ public class EmailService : IEmailService
                     <!-- Footer -->
                     <tr>
                         <td style='background-color: #f5f4f4; padding: 30px; border-radius: 0 0 8px 8px;' align='center'>
+                            <p style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; margin: 0 0 10px 0;'>
+                                The truth is not far away; it is ever present.
+                            </p>
                             <p style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; margin: 0;'>
-                                &copy; {DateTime.Now.Year} Equanimity. All rights reserved.
+                                &copy; {DateTime.Now.Year} Awakening Life. All rights reserved.
                             </p>
                         </td>
                     </tr>

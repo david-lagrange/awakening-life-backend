@@ -194,7 +194,7 @@ public static class ServiceExtensions
         services.AddHttpClient<ResendClient>();
         services.Configure<ResendClientOptions>(o =>
         {
-            o.ApiToken = Environment.GetEnvironmentVariable("RESEND_API_TOKEN")!;
+            o.ApiToken = Environment.GetEnvironmentVariable("AWAKENING_LIFE_RESEND_API_TOKEN")!;
         });
         services.AddTransient<IResend, ResendClient>();
     }
