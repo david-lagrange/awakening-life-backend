@@ -10,4 +10,5 @@ public interface IServiceManager
     IUserService UserService { get; }
     ISubscriptionService SubscriptionService { get; }
     IWaitlistService WaitlistService { get; }
+    IContactService ContactService { get; }
 }

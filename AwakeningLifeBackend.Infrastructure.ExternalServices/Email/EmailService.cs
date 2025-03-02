@@ -520,4 +520,131 @@ public class EmailService : IEmailService
 
         await _resend.EmailSendAsync(message);
     }
+
+    public async Task SendContactFormEmailAsync(string recipientEmail, string name, string email, string subject, string message)
+    {
+        var emailMessage = new EmailMessage();
+        emailMessage.From = "no-reply@info.awakeninglife.ai";
+        emailMessage.To.Add(recipientEmail);
+        emailMessage.Subject = $"New Contact Form Submission: {subject}";
+        emailMessage.HtmlBody = $@"
+<!DOCTYPE html>
+<html lang='en' xmlns='http://www.w3.org/1999/xhtml' xmlns:v='urn:schemas-microsoft-com:vml' xmlns:o='urn:schemas-microsoft-com:office:office'>
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='format-detection' content='telephone=no, date=no, address=no, email=no'>
+    <meta name='x-apple-disable-message-reformatting'>
+    <meta name='color-scheme' content='light dark'>
+    <meta name='supported-color-schemes' content='light dark'>
+    <title>New Contact Form Submission</title>
+</head>
+<body style='margin: 0; padding: 0; background-color: #f5f4f4; font-family: Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;'>
+    <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background: #f5f4f4;'>
+        <tr>
+            <td align='center' style='padding: 40px 0;'>
+                <table role='presentation' style='width: 100%; max-width: 600px; border-collapse: collapse; border: 0; border-spacing: 0; background: #ffffff;'>
+                    <!-- Header -->
+                    <tr>
+                        <td style='background-color: #345053; padding: 30px; border-radius: 8px 8px 0 0;' align='center'>
+                            <h1 style='color: #f5f4f4; margin: 0; font-size: 24px; font-family: Arial, sans-serif;'>New Contact Form Submission</h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style='padding: 40px 30px;'>
+                            <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;'>
+                                <tr>
+                                    <td style='padding-bottom: 20px;'>
+                                        <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;'>
+                                            <tr>
+                                                <td style='width: 150px; color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; font-weight: bold; padding: 10px; background-color: #f5f4f4; border-radius: 4px 0 0 4px;'>
+                                                    Name:
+                                                </td>
+                                                <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding: 10px; background-color: #f9f9f9; border-radius: 0 4px 4px 0;'>
+                                                    {name}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='padding-bottom: 20px;'>
+                                        <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;'>
+                                            <tr>
+                                                <td style='width: 150px; color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; font-weight: bold; padding: 10px; background-color: #f5f4f4; border-radius: 4px 0 0 4px;'>
+                                                    Email:
+                                                </td>
+                                                <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding: 10px; background-color: #f9f9f9; border-radius: 0 4px 4px 0;'>
+                                                    <a href='mailto:{email}' style='color: #4F46E5; text-decoration: underline;'>{email}</a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='padding-bottom: 20px;'>
+                                        <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;'>
+                                            <tr>
+                                                <td style='width: 150px; color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; font-weight: bold; padding: 10px; background-color: #f5f4f4; border-radius: 4px 0 0 4px;'>
+                                                    Subject:
+                                                </td>
+                                                <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding: 10px; background-color: #f9f9f9; border-radius: 0 4px 4px 0;'>
+                                                    {subject}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='padding-bottom: 20px;'>
+                                        <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;'>
+                                            <tr>
+                                                <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; font-weight: bold; padding: 10px; background-color: #f5f4f4; border-radius: 4px 4px 0 0;'>
+                                                    Message:
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding: 20px; background-color: #f9f9f9; border-radius: 0 0 4px 4px; white-space: pre-wrap;'>
+                                                    {message}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='padding-top: 20px; border-top: 1px solid #f0f0f0;'>
+                                        <p style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; margin: 0;'>
+                                            This message was sent from the Awakening Life contact form at {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style='background-color: #f5f4f4; padding: 30px; border-radius: 0 0 8px 8px;' align='center'>
+                            <p style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; margin: 0;'>
+                                &copy; {DateTime.Now.Year} Awakening Life. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>";
+
+        emailMessage.Headers = new Dictionary<string, string>
+        {
+            { "X-Auto-Response-Suppress", "OOF, AutoReply" }
+        };
+
+        await _resend.EmailSendAsync(emailMessage);
+    }
 }

@@ -33,7 +33,7 @@ public class StripeService : IStripeService
             
             var allSubscriptions = new List<Subscription>();
             var subscriptionService = new SubscriptionService();
-            string lastId = null;
+            string? lastId = null;
             bool hasMore = true;
             int batchSize = 100;
             int batchCount = 0;
@@ -285,8 +285,10 @@ public class StripeService : IStripeService
     // Helper class to compare invoices and remove duplicates
     private class InvoiceComparer : IEqualityComparer<Invoice>
     {
-        public bool Equals(Invoice x, Invoice y)
+        public bool Equals(Invoice? x, Invoice? y)
         {
+            if (x == null && y == null) return true;
+            if (x == null || y == null) return false;
             return x.Id == y.Id;
         }
 

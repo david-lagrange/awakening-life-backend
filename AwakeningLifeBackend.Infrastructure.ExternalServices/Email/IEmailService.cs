@@ -6,4 +6,5 @@ public interface IEmailService
     Task SendEmailConfirmationAsync(string recipient, string confirmationLink);
     Task SendSubscriptionCanceledEmailAsync(string recipient, string resubscribeLink);
     Task SendWaitlistConfirmationEmailAsync(string recipient);
+    Task SendContactFormEmailAsync(string recipientEmail, string name, string email, string subject, string message);
 }
