@@ -16,7 +16,7 @@ public class EmailService : IEmailService
         var message = new EmailMessage();
         message.From = "no-reply@info.awakeninglife.ai";
         message.To.Add(recipient);
-        message.Subject = "Password Reset Request - Awakening Life";
+        message.Subject = "Reset Your Password - Awakening Life";
         message.HtmlBody = $@"
 <!DOCTYPE html>
 <html lang='en' xmlns='http://www.w3.org/1999/xhtml' xmlns:v='urn:schemas-microsoft-com:vml' xmlns:o='urn:schemas-microsoft-com:office:office'>
@@ -28,7 +28,7 @@ public class EmailService : IEmailService
     <meta name='x-apple-disable-message-reformatting'>
     <meta name='color-scheme' content='light dark'>
     <meta name='supported-color-schemes' content='light dark'>
-    <title>Password Reset - Awakening Life</title>
+    <title>Reset Your Password - Awakening Life</title>
     <!--[if mso]>
     <noscript>
         <xml>
@@ -42,7 +42,7 @@ public class EmailService : IEmailService
 <body style='margin: 0; padding: 0; background-color: #f5f4f4; font-family: Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;'>
     <!-- Preview Text -->
     <div style='display: none; max-height: 0px; overflow: hidden;'>
-        Reset your password for your Equanimity account - this link will expire in 24 hours.
+        Reset your password for your Awakening Life account - this link will expire in 24 hours.
         &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
     </div>
     
@@ -53,7 +53,7 @@ public class EmailService : IEmailService
                     <!-- Header -->
                     <tr>
                         <td style='background-color: #345053; padding: 30px; border-radius: 8px 8px 0 0;' align='center'>
-                            <h1 style='color: #f5f4f4; margin: 0; font-size: 24px; font-family: Arial, sans-serif;'>Password Reset Request</h1>
+                            <h1 style='color: #f5f4f4; margin: 0; font-size: 24px; font-family: Arial, sans-serif;'>Reset Your Password</h1>
                         </td>
                     </tr>
                     
@@ -63,31 +63,36 @@ public class EmailService : IEmailService
                             <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;'>
                                 <tr>
                                     <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding-bottom: 25px;'>
-                                        A password reset has been requested for your account. If you did not make this request, please ignore this email.
+                                        We received a request to reset your password for your Awakening Life journey. If you didn't make this request, you can safely ignore this email.
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding-bottom: 35px;'>
-                                        To reset your password, click the button below:
+                                        To reset your password and continue your path of self-discovery, click the button below:
                                     </td>
                                 </tr>
                                 <tr>
                                     <td align='center' style='padding-bottom: 35px;'>
                                         <!--[if mso]>
-                                        <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='{passwordResetLink}' style='height:45px;v-text-anchor:middle;width:200px;' arcsize='10%' strokecolor='#66ac9d' fillcolor='#66ac9d'>
+                                        <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='{passwordResetLink}' style='height:45px;v-text-anchor:middle;width:200px;' arcsize='10%' strokecolor='#4F46E5' fillcolor='#4F46E5'>
                                             <w:anchorlock/>
                                             <center style='color:#ffffff;font-family:Arial,sans-serif;font-size:16px;font-weight:bold;'>Reset Password</center>
                                         </v:roundrect>
                                         <![endif]-->
                                         <!--[if !mso]><!-->
-                                        <a href='{passwordResetLink}' style='background-color: #66ac9d; border: 1px solid #66ac9d; border-radius: 6px; color: #ffffff; display: inline-block; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; line-height: 45px; text-align: center; text-decoration: none; width: 200px; -webkit-text-size-adjust: none;'>Reset Password</a>
+                                        <a href='{passwordResetLink}' style='background-color: #4F46E5; border: 1px solid #4F46E5; border-radius: 6px; color: #ffffff; display: inline-block; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; line-height: 45px; text-align: center; text-decoration: none; width: 200px; -webkit-text-size-adjust: none;'>Reset Password</a>
                                         <!--<![endif]-->
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;'>
                                         If the button doesn't work, copy and paste this link into your browser:<br>
-                                        <a href='{passwordResetLink}' style='color: #66ac9d; text-decoration: underline; word-break: break-all;'>{passwordResetLink}</a>
+                                        <a href='{passwordResetLink}' style='color: #4F46E5; text-decoration: underline; word-break: break-all;'>{passwordResetLink}</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5; padding-top: 30px; border-top: 1px solid #f0f0f0; margin-top: 30px;'>
+                                        <p>This link will expire in 24 hours for security reasons.</p>
                                     </td>
                                 </tr>
                             </table>
@@ -97,8 +102,11 @@ public class EmailService : IEmailService
                     <!-- Footer -->
                     <tr>
                         <td style='background-color: #f5f4f4; padding: 30px; border-radius: 0 0 8px 8px;' align='center'>
+                            <p style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; margin: 0 0 10px 0;'>
+                                ""The journey inward is the journey forward.""
+                            </p>
                             <p style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; margin: 0;'>
-                                &copy; {DateTime.Now.Year} Equanimity. All rights reserved.
+                                &copy; {DateTime.Now.Year} Awakening Life. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -124,10 +132,10 @@ public class EmailService : IEmailService
         var message = new EmailMessage();
         message.From = "no-reply@info.awakeninglife.ai";
         message.To.Add(recipient);
-        message.Subject = "Confirm Your Email - Awakening Life";
+        message.Subject = "Confirm Your Email - Begin Your Awakening Journey";
         message.HtmlBody = $@"
 <!DOCTYPE html>
-<html lang='en'>
+<html lang='en' xmlns='http://www.w3.org/1999/xhtml' xmlns:v='urn:schemas-microsoft-com:vml' xmlns:o='urn:schemas-microsoft-com:office:office'>
 <head>
     <meta charset='utf-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
@@ -136,7 +144,7 @@ public class EmailService : IEmailService
     <meta name='x-apple-disable-message-reformatting'>
     <meta name='color-scheme' content='light dark'>
     <meta name='supported-color-schemes' content='light dark'>
-    <title>Email Confirmation - Awakening Life</title>
+    <title>Confirm Your Email - Awakening Life</title>
     <!--[if mso]>
     <noscript>
         <xml>
@@ -150,7 +158,7 @@ public class EmailService : IEmailService
 <body style='margin: 0; padding: 0; background-color: #f5f4f4; font-family: Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;'>
     <!-- Preview Text -->
     <div style='display: none; max-height: 0px; overflow: hidden;'>
-        Please confirm your email address for your Awakening Life account.
+        One step closer to beginning your journey of self-discovery with Awakening Life.
         &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
     </div>
     
@@ -161,7 +169,7 @@ public class EmailService : IEmailService
                     <!-- Header -->
                     <tr>
                         <td style='background-color: #345053; padding: 30px; border-radius: 8px 8px 0 0;' align='center'>
-                            <h1 style='color: #f5f4f4; margin: 0; font-size: 24px; font-family: Arial, sans-serif;'>Email Confirmation</h1>
+                            <h1 style='color: #f5f4f4; margin: 0; font-size: 24px; font-family: Arial, sans-serif;'>Confirm Your Email</h1>
                         </td>
                     </tr>
                     
@@ -171,18 +179,36 @@ public class EmailService : IEmailService
                             <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;'>
                                 <tr>
                                     <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding-bottom: 25px;'>
-                                        Please confirm your email address by clicking the button below:
+                                        Thank you for creating your Awakening Life account. We're excited to guide you on your journey toward self-realization.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding-bottom: 25px;'>
+                                        To begin your journey, please confirm your email address:
                                     </td>
                                 </tr>
                                 <tr>
                                     <td align='center' style='padding-bottom: 35px;'>
-                                        <a href='{confirmationLink}' style='background-color: #66ac9d; border: 1px solid #66ac9d; border-radius: 6px; color: #ffffff; display: inline-block; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; line-height: 45px; text-align: center; text-decoration: none; width: 200px;'>Confirm Email</a>
+                                        <a href='{confirmationLink}' style='background-color: #10B981; border: 1px solid #10B981; border-radius: 6px; color: #ffffff; display: inline-block; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; line-height: 45px; text-align: center; text-decoration: none; width: 200px;'>Confirm Email</a>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;'>
                                         If the button doesn't work, copy and paste this link into your browser:<br>
-                                        <a href='{confirmationLink}' style='color: #66ac9d; text-decoration: underline; word-break: break-all;'>{confirmationLink}</a>
+                                        <a href='{confirmationLink}' style='color: #10B981; text-decoration: underline; word-break: break-all;'>{confirmationLink}</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='padding-top: 30px;'>
+                                        <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background: #f5f4f4; border-radius: 8px;'>
+                                            <tr>
+                                                <td style='padding: 20px; text-align: center;'>
+                                                    <p style='color: #345053; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.5; margin: 0;'>
+                                                        ""The journey of a thousand miles begins with a single step.""
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                             </table>
@@ -193,7 +219,7 @@ public class EmailService : IEmailService
                     <tr>
                         <td style='background-color: #f5f4f4; padding: 30px; border-radius: 0 0 8px 8px;' align='center'>
                             <p style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; margin: 0;'>
-                                &copy; {DateTime.Now.Year} Equanimity. All rights reserved.
+                                &copy; {DateTime.Now.Year} Awakening Life. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -219,7 +245,7 @@ public class EmailService : IEmailService
         var message = new EmailMessage();
         message.From = "no-reply@info.awakeninglife.ai";
         message.To.Add(recipient);
-        message.Subject = "Subscription Canceled - Awakening Life";
+        message.Subject = "Your Awakening Life Journey - Subscription Update";
         message.HtmlBody = $@"
 <!DOCTYPE html>
 <html lang='en' xmlns='http://www.w3.org/1999/xhtml' xmlns:v='urn:schemas-microsoft-com:vml' xmlns:o='urn:schemas-microsoft-com:office:office'>
@@ -231,7 +257,7 @@ public class EmailService : IEmailService
     <meta name='x-apple-disable-message-reformatting'>
     <meta name='color-scheme' content='light dark'>
     <meta name='supported-color-schemes' content='light dark'>
-    <title>Subscription Canceled - Awakening Life</title>
+    <title>Subscription Update - Awakening Life</title>
     <!--[if mso]>
     <noscript>
         <xml>
@@ -245,7 +271,7 @@ public class EmailService : IEmailService
 <body style='margin: 0; padding: 0; background-color: #f5f4f4; font-family: Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;'>
     <!-- Preview Text -->
     <div style='display: none; max-height: 0px; overflow: hidden;'>
-        Your Awakening Life subscription has been canceled. You can resubscribe at any time.
+        Your Awakening Life subscription has been paused. Your journey can continue whenever you're ready.
         &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
     </div>
     
@@ -256,7 +282,7 @@ public class EmailService : IEmailService
                     <!-- Header -->
                     <tr>
                         <td style='background-color: #345053; padding: 30px; border-radius: 8px 8px 0 0;' align='center'>
-                            <h1 style='color: #f5f4f4; margin: 0; font-size: 24px; font-family: Arial, sans-serif;'>Subscription Canceled</h1>
+                            <h1 style='color: #f5f4f4; margin: 0; font-size: 24px; font-family: Arial, sans-serif;'>Your Journey Is Paused</h1>
                         </td>
                     </tr>
                     
@@ -266,30 +292,43 @@ public class EmailService : IEmailService
                             <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;'>
                                 <tr>
                                     <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding-bottom: 25px;'>
-                                        We're sorry to see you go. Your subscription has been successfully canceled.
+                                        We've processed your request to pause your Awakening Life subscription. Your account has been updated successfully.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='padding-bottom: 30px;'>
+                                        <table role='presentation' style='width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background: #f5f4f4; border-radius: 8px;'>
+                                            <tr>
+                                                <td style='padding: 20px; text-align: center;'>
+                                                    <p style='color: #345053; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.5; margin: 0;'>
+                                                        ""Every ending is a new beginning. The path remains whenever you're ready to return.""
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style='color: #345053; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding-bottom: 25px;'>
-                                        If you change your mind, you can resubscribe at any time using the button below:
+                                        We understand that life's journey has many paths. Should you wish to continue your exploration of self-realization with us, you can reactivate your subscription at any time:
                                     </td>
                                 </tr>
                                 <tr>
                                     <td align='center' style='padding-bottom: 35px;'>
                                         <!--[if mso]>
-                                        <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='{resubscribeLink}' style='height:45px;v-text-anchor:middle;width:200px;' arcsize='10%' strokecolor='#66ac9d' fillcolor='#66ac9d'>
+                                        <v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' href='{resubscribeLink}' style='height:45px;v-text-anchor:middle;width:220px;' arcsize='10%' strokecolor='#8B5CF6' fillcolor='#8B5CF6'>
                                             <w:anchorlock/>
-                                            <center style='color:#ffffff;font-family:Arial,sans-serif;font-size:16px;font-weight:bold;'>Resubscribe</center>
+                                            <center style='color:#ffffff;font-family:Arial,sans-serif;font-size:16px;font-weight:bold;'>Continue My Journey</center>
                                         </v:roundrect>
                                         <![endif]-->
                                         <!--[if !mso]><!-->
-                                        <a href='{resubscribeLink}' style='background-color: #66ac9d; border: 1px solid #66ac9d; border-radius: 6px; color: #ffffff; display: inline-block; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; line-height: 45px; text-align: center; text-decoration: none; width: 200px; -webkit-text-size-adjust: none;'>Resubscribe</a>
+                                        <a href='{resubscribeLink}' style='background-color: #8B5CF6; border: 1px solid #8B5CF6; border-radius: 6px; color: #ffffff; display: inline-block; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; line-height: 45px; text-align: center; text-decoration: none; width: 220px; -webkit-text-size-adjust: none;'>Continue My Journey</a>
                                         <!--<![endif]-->
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;'>
-                                        If you have any questions or feedback, please don't hesitate to contact our support team.
+                                        If you have any questions about your subscription or would like to share feedback about your experience, we're here to help at <a href='mailto:support@awakeninglife.ai' style='color: #8B5CF6; text-decoration: underline;'>support@awakeninglife.ai</a>
                                     </td>
                                 </tr>
                             </table>
@@ -300,7 +339,7 @@ public class EmailService : IEmailService
                     <tr>
                         <td style='background-color: #f5f4f4; padding: 30px; border-radius: 0 0 8px 8px;' align='center'>
                             <p style='color: #345053; font-family: Arial, sans-serif; font-size: 14px; margin: 0;'>
-                                &copy; {DateTime.Now.Year} Equanimity. All rights reserved.
+                                &copy; {DateTime.Now.Year} Awakening Life. All rights reserved.
                             </p>
                         </td>
                     </tr>
