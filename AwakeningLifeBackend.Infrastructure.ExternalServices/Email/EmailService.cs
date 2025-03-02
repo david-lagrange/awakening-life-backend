@@ -14,9 +14,9 @@ public class EmailService : IEmailService
     public async Task SendEmailAsync(string recipient, string passwordResetLink)
     {
         var message = new EmailMessage();
-        message.From = "no-reply@accounts.equanimity-solutions.com";
+        message.From = "no-reply@info.awakeninglife.ai";
         message.To.Add(recipient);
-        message.Subject = "Password Reset Request - Equanimity Accounts";
+        message.Subject = "Password Reset Request - Awakening Life";
         message.HtmlBody = $@"
 <!DOCTYPE html>
 <html lang='en' xmlns='http://www.w3.org/1999/xhtml' xmlns:v='urn:schemas-microsoft-com:vml' xmlns:o='urn:schemas-microsoft-com:office:office'>
@@ -28,7 +28,7 @@ public class EmailService : IEmailService
     <meta name='x-apple-disable-message-reformatting'>
     <meta name='color-scheme' content='light dark'>
     <meta name='supported-color-schemes' content='light dark'>
-    <title>Password Reset - Equanimity</title>
+    <title>Password Reset - Awakening Life</title>
     <!--[if mso]>
     <noscript>
         <xml>
@@ -111,7 +111,7 @@ public class EmailService : IEmailService
 
         message.Headers = new Dictionary<string, string>
         {
-            { "List-Unsubscribe", "<mailto:unsubscribe@accounts.equanimity-solutions.com?subject=unsubscribe>" },
+            { "List-Unsubscribe", "<mailto:unsubscribe@info.awakeninglife.ai?subject=unsubscribe>" },
             { "Precedence", "bulk" },
             { "X-Auto-Response-Suppress", "OOF, AutoReply" }
         };
@@ -122,9 +122,9 @@ public class EmailService : IEmailService
     public async Task SendEmailConfirmationAsync(string recipient, string confirmationLink)
     {
         var message = new EmailMessage();
-        message.From = "no-reply@accounts.equanimity-solutions.com";
+        message.From = "no-reply@info.awakeninglife.ai";
         message.To.Add(recipient);
-        message.Subject = "Confirm Your Email - Equanimity Accounts";
+        message.Subject = "Confirm Your Email - Awakening Life";
         message.HtmlBody = $@"
 <!DOCTYPE html>
 <html lang='en'>
@@ -136,7 +136,7 @@ public class EmailService : IEmailService
     <meta name='x-apple-disable-message-reformatting'>
     <meta name='color-scheme' content='light dark'>
     <meta name='supported-color-schemes' content='light dark'>
-    <title>Email Confirmation - Equanimity</title>
+    <title>Email Confirmation - Awakening Life</title>
     <!--[if mso]>
     <noscript>
         <xml>
@@ -150,7 +150,7 @@ public class EmailService : IEmailService
 <body style='margin: 0; padding: 0; background-color: #f5f4f4; font-family: Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;'>
     <!-- Preview Text -->
     <div style='display: none; max-height: 0px; overflow: hidden;'>
-        Please confirm your email address for your Equanimity account.
+        Please confirm your email address for your Awakening Life account.
         &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
     </div>
     
@@ -206,7 +206,7 @@ public class EmailService : IEmailService
 
         message.Headers = new Dictionary<string, string>
         {
-            { "List-Unsubscribe", "<mailto:unsubscribe@accounts.equanimity-solutions.com?subject=unsubscribe>" },
+            { "List-Unsubscribe", "<mailto:unsubscribe@info.awakeninglife.ai?subject=unsubscribe>" },
             { "Precedence", "bulk" },
             { "X-Auto-Response-Suppress", "OOF, AutoReply" }
         };
@@ -217,9 +217,9 @@ public class EmailService : IEmailService
     public async Task SendSubscriptionCanceledEmailAsync(string recipient, string resubscribeLink)
     {
         var message = new EmailMessage();
-        message.From = "no-reply@accounts.equanimity-solutions.com";
+        message.From = "no-reply@info.awakeninglife.ai";
         message.To.Add(recipient);
-        message.Subject = "Subscription Canceled - Equanimity Accounts";
+        message.Subject = "Subscription Canceled - Awakening Life";
         message.HtmlBody = $@"
 <!DOCTYPE html>
 <html lang='en' xmlns='http://www.w3.org/1999/xhtml' xmlns:v='urn:schemas-microsoft-com:vml' xmlns:o='urn:schemas-microsoft-com:office:office'>
@@ -231,7 +231,7 @@ public class EmailService : IEmailService
     <meta name='x-apple-disable-message-reformatting'>
     <meta name='color-scheme' content='light dark'>
     <meta name='supported-color-schemes' content='light dark'>
-    <title>Subscription Canceled - Equanimity</title>
+    <title>Subscription Canceled - Awakening Life</title>
     <!--[if mso]>
     <noscript>
         <xml>
@@ -245,7 +245,7 @@ public class EmailService : IEmailService
 <body style='margin: 0; padding: 0; background-color: #f5f4f4; font-family: Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;'>
     <!-- Preview Text -->
     <div style='display: none; max-height: 0px; overflow: hidden;'>
-        Your Equanimity subscription has been canceled. You can resubscribe at any time.
+        Your Awakening Life subscription has been canceled. You can resubscribe at any time.
         &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
     </div>
     
@@ -313,7 +313,7 @@ public class EmailService : IEmailService
 
         message.Headers = new Dictionary<string, string>
         {
-            { "List-Unsubscribe", "<mailto:unsubscribe@accounts.equanimity-solutions.com?subject=unsubscribe>" },
+            { "List-Unsubscribe", "<mailto:unsubscribe@info.awakeninglife.ai?subject=unsubscribe>" },
             { "Precedence", "bulk" },
             { "X-Auto-Response-Suppress", "OOF, AutoReply" }
         };
@@ -324,7 +324,7 @@ public class EmailService : IEmailService
     public async Task SendWaitlistConfirmationEmailAsync(string recipient)
     {
         var message = new EmailMessage();
-        message.From = "no-reply@accounts.equanimity-solutions.com";
+        message.From = "no-reply@info.awakeninglife.ai";
         message.To.Add(recipient);
         message.Subject = "Welcome to the Awakening Life Journey";
         message.HtmlBody = $@"
